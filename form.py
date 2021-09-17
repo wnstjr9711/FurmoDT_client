@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
 
 
 app = QApplication(sys.argv)
+app.setStyle('Fusion')
 window = MainWindow()
 window.show()
 
