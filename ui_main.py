@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationoHfSYa.ui'
+## Form generated from reading UI file 'applicationCujItF.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -181,10 +181,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.quit_work)
 
-        self.pushButton_3 = QPushButton(self.widget)
-        self.pushButton_3.setObjectName(u"pushButton_3")
+        self.load_video = QPushButton(self.widget)
+        self.load_video.setObjectName(u"load_video")
 
-        self.horizontalLayout.addWidget(self.pushButton_3)
+        self.horizontalLayout.addWidget(self.load_video)
 
         self.pushButton_4 = QPushButton(self.widget)
         self.pushButton_4.setObjectName(u"pushButton_4")
@@ -238,7 +238,7 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
         self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
-        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.load_video.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc5f0\uacb0", None))
         self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
     # retranslateUi
