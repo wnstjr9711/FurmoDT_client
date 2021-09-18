@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationyBuuCY.ui'
+## Form generated from reading UI file 'applicationoHfSYa.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1080, 720)
+        MainWindow.resize(1186, 663)
         icon = QIcon()
         icon.addFile(u"files/furmodt-favicon.ico", QSize(), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -34,6 +34,7 @@ class Ui_MainWindow(object):
         self.videowidget = QWidget(self.playerwidget)
         self.videowidget.setObjectName(u"videowidget")
         self.videowidget.setMinimumSize(QSize(480, 360))
+        self.videowidget.setStyleSheet(u"background-color: rgb(0, 0, 0);")
 
         self.verticalLayout.addWidget(self.videowidget, 0, Qt.AlignHCenter|Qt.AlignVCenter)
 
@@ -135,6 +136,7 @@ class Ui_MainWindow(object):
 
         self.project_name = QLineEdit(self.project_input)
         self.project_name.setObjectName(u"project_name")
+        self.project_name.setStyleSheet(u"background-color: rgb(255, 255, 255);")
 
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.project_name)
 
@@ -145,6 +147,7 @@ class Ui_MainWindow(object):
 
         self.video_url = QLineEdit(self.project_input)
         self.video_url.setObjectName(u"video_url")
+        self.video_url.setStyleSheet(u"background-color: rgb(255, 255, 255);")
 
         self.formLayout.setWidget(1, QFormLayout.FieldRole, self.video_url)
 
@@ -157,7 +160,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.project_input, 0, Qt.AlignHCenter)
 
-        self.project_table = QTableWidget(self.project_widget)
+        self.project_table = QListWidget(self.project_widget)
         self.project_table.setObjectName(u"project_table")
 
         self.verticalLayout_5.addWidget(self.project_table)
@@ -169,10 +172,37 @@ class Ui_MainWindow(object):
         self.work_widget.setObjectName(u"work_widget")
         self.gridLayout_3 = QGridLayout(self.work_widget)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.widget = QWidget(self.work_widget)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout = QHBoxLayout(self.widget)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.quit_work = QPushButton(self.widget)
+        self.quit_work.setObjectName(u"quit_work")
+
+        self.horizontalLayout.addWidget(self.quit_work)
+
+        self.pushButton_3 = QPushButton(self.widget)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+
+        self.horizontalLayout.addWidget(self.pushButton_3)
+
+        self.pushButton_4 = QPushButton(self.widget)
+        self.pushButton_4.setObjectName(u"pushButton_4")
+
+        self.horizontalLayout.addWidget(self.pushButton_4)
+
+        self.pushButton = QPushButton(self.widget)
+        self.pushButton.setObjectName(u"pushButton")
+
+        self.horizontalLayout.addWidget(self.pushButton)
+
+
+        self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
+
         self.work_table = QTableWidget(self.work_widget)
         self.work_table.setObjectName(u"work_table")
 
-        self.gridLayout_3.addWidget(self.work_table, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.work_table, 1, 0, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.work_widget, 0, 2, 1, 1)
@@ -207,5 +237,9 @@ class Ui_MainWindow(object):
         self.button_create_project.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc0dd\uc131", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
+        self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
+        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
     # retranslateUi
 

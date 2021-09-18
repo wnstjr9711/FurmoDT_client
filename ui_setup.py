@@ -1,6 +1,6 @@
 from PySide2 import QtCore
 from PySide2.QtCore import QUrl, QTimer
-from PySide2.QtGui import QPalette
+from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QFileDialog, QLineEdit, QTableWidgetItem
@@ -16,15 +16,21 @@ class AdvancedSetup(Ui_MainWindow):
         self.setupUi(main)
 
         # 초기화면 설정
-        self.project_input.setVisible(False)
-        self.work_widget.setVisible(False)
-        
-        self.project_table.setColumnCount(1)
-        self.project_table.setHorizontalHeaderLabels(['프로젝트 이름', '동영상 이름'])
-        self.project_table.resizeColumnsToContents()
-        # self.project_table.setHo
-        # self.project_table.
-        
+        self.default_view()
+
+        # ui 설정
+        font = QFont()
+        font.setPointSize(15)
+        self.project_table.setFont(font)
+        # self.project_table.setColumnCount(2)
+        # self.project_table.setHorizontalHeaderLabels(['프로젝트 이름', '동영상 이름'])
+        # self.project_table.resizeColumnsToContents()
+
+        # 색상 설정
+        self.project_table.setStyleSheet("border-radius: 10px;"
+                                         "background-color: rgb(255, 255, 255);")
+        self.work_table.setStyleSheet("border-radius: 10px;"
+                                      "background-color: rgb(255, 255, 255);")
 
         # 타이머
         self.sec = 0
@@ -38,9 +44,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.playlist = QMediaPlaylist(self.player)
         self.video_widget = QVideoWidget(self.videowidget)
         self.video_widget.resize(QtCore.QSize(480, 360))
-        pal = QPalette()
-        pal.setColor(QPalette.Background, QtCore.Qt.black)
-        self.video_widget.setPalette(pal)
         self.player.setVideoOutput(self.video_widget)
 
         # 클라이언트 초기화
@@ -51,7 +54,7 @@ class AdvancedSetup(Ui_MainWindow):
             "get_project_work": None,     # None: project,  project id: work
         }
 
-        # 동영상 플레이어 조작 이벤트
+        # ********************** 동영상 플레이어 조작 이벤트 ********************** #
         self.play.clicked.connect(self.play_clicked_event)
         self.prev.clicked.connect(self.pass_prev_video)
         self.next.clicked.connect(self.pass_next_video)
@@ -61,14 +64,48 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.sliderReleased.connect(self.video_slider_released_event)
         self.player.durationChanged.connect(self.video_duration_event)
         self.player.positionChanged.connect(self.video_position_event)
+        # ********************** 동영상 플레이어 조작 이벤트 ********************** #
 
-        # 프로젝트 조작 이벤트
+        # 프로젝트 목록
+        self.project_list = list()
+        # 작업 영상 url, name
+
+
+        # ********************** 프로젝트 조작 이벤트 ********************** #
+        # 생성
         self.button_create_project.clicked.connect(self.create_project)
         self.buttonbox_create.accepted.connect(self.create_accept)
         self.buttonbox_create.rejected.connect(self.create_reject)
-        
-        # 프로젝트
-        self.project_table.setItem(0, 0, QTableWidgetItem('as'))
+        # 입장
+        self.project_table.itemDoubleClicked.connect(self.join_project)
+        # ********************** 프로젝트 조작 이벤트 ********************** #
+
+        # ********************** 작업 조작 이벤트 ********************** #
+        self.quit_work.clicked.connect(self.back_to_project)
+        # ********************** 작업 조작 이벤트 ********************** #
+
+    # ********************** 화면 전환 함수 ********************** #
+    def default_view(self):
+        self.project_widget.setVisible(True)
+        self.project_input.setVisible(False)
+        self.work_widget.setVisible(False)
+
+    def work_view(self):
+        self.project_widget.setVisible(False)
+        self.work_widget.setVisible(True)
+
+    def refresh(self, ret):
+        # 프로젝트 목록 갱신
+        if type(ret) == list:
+            add = set(ret).difference(self.project_list)
+            for i in sorted(add):
+                self.project_list.append(i)
+                self.project_table.addItem(i)
+
+        # 자막 화면 갱신
+        else:
+            pass
+    # ********************** 화면 전환 함수 ********************** #
 
     # 타이머 함수
     def timeout(self):
@@ -76,7 +113,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.set_playtime(self.player.position() + self.sec)
         self.videoSlider.setValue(self.player.position())
 
-    # 동영상 플레이 이벤트 함수
+    # ********************** 동영상 플레이 이벤트 함수 ********************** #
     def play_video(self):
         self.play.setText('❚❚')
         self.player.play()
@@ -128,6 +165,28 @@ class AdvancedSetup(Ui_MainWindow):
             if self.player.isVideoAvailable():
                 self.play_video()
 
+    def sound_slider_event(self):
+        self.player.setVolume(self.soundSlider.value())
+        self.sound.setText(str(self.soundSlider.value()))
+
+    def video_duration_event(self):
+        self.duration = self.player.duration()
+        self.videoSlider.setMaximum(self.duration)
+        self.set_playtime(0)
+
+    def video_position_event(self):
+        self.sec = 0
+        if self.player.position() == self.duration:
+            self.stop_video()
+
+    def video_slider_pressed_event(self):
+        self.pause_video()
+
+    def video_slider_released_event(self):
+        self.player.setPosition(self.videoSlider.value())
+        self.set_playtime(self.videoSlider.value())
+    # ********************** 동영상 플레이 이벤트 함수 ********************** #
+
     def open_video_event(self):
         video = QFileDialog.getOpenFileName(None, "동영상 열기", filter="모든 미디어 파일 (*.mp4 *.avi)")[0]
         # url = 'https://drive.google.com/uc?id=1qNGOzi_PgHNaM056GeZlD6dKeg3JjmWo'
@@ -160,28 +219,7 @@ class AdvancedSetup(Ui_MainWindow):
             self.playlist.addMedia(QUrl(video))
             self.player.setPlaylist(self.playlist)
 
-    def sound_slider_event(self):
-        self.player.setVolume(self.soundSlider.value())
-        self.sound.setText(str(self.soundSlider.value()))
-
-    def video_duration_event(self):
-        self.duration = self.player.duration()
-        self.videoSlider.setMaximum(self.duration)
-        self.set_playtime(0)
-
-    def video_position_event(self):
-        self.sec = 0
-        if self.player.position() == self.duration:
-            self.stop_video()
-
-    def video_slider_pressed_event(self):
-        self.pause_video()
-
-    def video_slider_released_event(self):
-        self.player.setPosition(self.videoSlider.value())
-        self.set_playtime(self.videoSlider.value())
-
-    # 프로젝트 이벤트 함수
+    # ********************** 프로젝트 이벤트 함수 ********************** #
     def create_project(self):
         self.project_input.setVisible(True)
 
@@ -198,11 +236,17 @@ class AdvancedSetup(Ui_MainWindow):
     def create_reject(self):
         self.project_input.setVisible(False)
 
-    def refresh(self):
-        # 프로젝트 목록 갱신
-        if not self.client['get_project_work']:
+    def join_project(self):
+        self.client['get_project_work'] = self.project_table.currentItem().text()
+        self.work_view()
+    # ********************** 프로젝트 이벤트 함수 ********************** #
 
-            pass
-    # 프로젝트 뷰어
-    # def show_table(self):
-    #     if self.client
+    # ********************** 작업 이벤트 함수 ********************** #
+    def back_to_project(self):
+        self.client['get_project_work'] = None
+        self.default_view()
+        pass
+    # ********************** 작업 이벤트 함수 ********************** #
+
+
+# TODO // 내일 할일 refresh에서 프로젝트 목록 불러올때 table에 추가, 테이블 뷰 정리
