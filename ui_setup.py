@@ -6,6 +6,7 @@ from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QFileDialog, QLineEdit, QTableWidgetItem
 from ui_main import Ui_MainWindow
 import datetime
+import os
 import gdown
 
 
@@ -69,7 +70,7 @@ class AdvancedSetup(Ui_MainWindow):
         # 프로젝트 목록
         self.project_list = list()
         # 작업 영상 url, name
-
+        self.work_video = None
 
         # ********************** 프로젝트 조작 이벤트 ********************** #
         # 생성
@@ -82,6 +83,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         # ********************** 작업 조작 이벤트 ********************** #
         self.quit_work.clicked.connect(self.back_to_project)
+        self.load_video.clicked.connect(self.load_video_event)
         # ********************** 작업 조작 이벤트 ********************** #
 
     # ********************** 화면 전환 함수 ********************** #
@@ -104,7 +106,8 @@ class AdvancedSetup(Ui_MainWindow):
 
         # 자막 화면 갱신
         else:
-            pass
+            if self.work_video != ret['metadata']:
+                self.work_video = ret['metadata']
     # ********************** 화면 전환 함수 ********************** #
 
     # 타이머 함수
@@ -187,38 +190,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.set_playtime(self.videoSlider.value())
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
 
-    def open_video_event(self):
-        video = QFileDialog.getOpenFileName(None, "동영상 열기", filter="모든 미디어 파일 (*.mp4 *.avi)")[0]
-        # url = 'https://drive.google.com/uc?id=1qNGOzi_PgHNaM056GeZlD6dKeg3JjmWo'
-        # gdown.download(url, 'abc', quiet=False)
-        # 시간 tqdm
-        # try:
-        #     total = res.headers.get("Content-Length")
-        #     if total is not None:
-        #         total = int(total)
-        #     if not quiet:
-        #         pbar = tqdm.tqdm(total=total, unit="B", unit_scale=True)
-        #     t_start = time.time()
-        #     for chunk in res.iter_content(chunk_size=CHUNK_SIZE):
-        #         f.write(chunk)
-        #         if not quiet:
-        #             pbar.update(len(chunk))
-        #         if speed is not None:
-        #             elapsed_time_expected = 1.0 * pbar.n / speed
-        #             elapsed_time = time.time() - t_start
-        #             if elapsed_time < elapsed_time_expected:
-        #                 time.sleep(elapsed_time_expected - elapsed_time)
-        #     if not quiet:
-        #         pbar.close()
-        #     if tmp_file:
-        #         f.close()
-        #         shutil.move(tmp_file, output)
-
-        if video:
-            self.playlist.clear()
-            self.playlist.addMedia(QUrl(video))
-            self.player.setPlaylist(self.playlist)
-
     # ********************** 프로젝트 이벤트 함수 ********************** #
     def create_project(self):
         self.project_input.setVisible(True)
@@ -245,8 +216,21 @@ class AdvancedSetup(Ui_MainWindow):
     def back_to_project(self):
         self.client['get_project_work'] = None
         self.default_view()
-        pass
+
+    def load_video_event(self):
+        fileid, filename = self.work_video[0].split('/')[-2], self.work_video[1]
+        location = os.path.join(os.getcwd(), 'video_download')
+        if not os.path.exists(location):
+            os.mkdir(location)
+        video_path = os.path.join(location, filename)
+        download_link = 'https://drive.google.com/uc?id=' + fileid
+        # download_link = 'https://drive.google.com/uc?id=' + '1qNGOzi_PgHNaM056GeZlD6dKeg3JjmWo'
+        gdown.download(download_link, video_path)
+
+        self.playlist.clear()
+        self.playlist.addMedia(QUrl(video_path))
+        self.player.setPlaylist(self.playlist)
     # ********************** 작업 이벤트 함수 ********************** #
 
 
-# TODO // 내일 할일 refresh에서 프로젝트 목록 불러올때 table에 추가, 테이블 뷰 정리
+# TODO // 동영상 업로드 확인(loadvideoevent) 내일 할일 작업 시트 만들기
