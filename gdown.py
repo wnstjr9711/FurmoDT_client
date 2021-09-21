@@ -120,14 +120,12 @@ def download(url, output=None):
             sess.cookies[k] = v
 
     file_id, is_download_link = parse_url(url)
-
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"  # NOQA
     }
-
+    a = 0
     while True:
         res = sess.get(url, headers=headers, stream=True)
-
         # Save cookies
         with open(cookies_file, "w") as f:
             cookies = [
@@ -157,7 +155,6 @@ def download(url, output=None):
             )
             print("\n\t", url_origin, "\n", file=sys.stderr)
             return
-
     if file_id and is_download_link:
         m = re.search('filename="(.*)"', res.headers["Content-Disposition"])
         filename_from_url = m.groups()[0]
@@ -172,7 +169,6 @@ def download(url, output=None):
             os.makedirs(output)
         output = osp.join(output, filename_from_url)
 
-
     if output_is_path:
         tmp_file = tempfile.mktemp(
             suffix=tempfile.template,
@@ -185,12 +181,13 @@ def download(url, output=None):
         f = output
 
     try:
-        pbar = tqdm.tqdm(res.content)                                         #####################################################
+        pbar = tqdm.tqdm(res.content)
+        # print(len(res.content))  100%
         for chunk in res.iter_content(chunk_size=CHUNK_SIZE):
             f.write(chunk)
             print(pbar.n)
-            pbar.update(len(chunk))                                #####################################################
-        pbar.close()                                               #####################################################
+            pbar.update(len(chunk))
+        pbar.close()
         if tmp_file:
             f.close()
             shutil.move(tmp_file, output)
@@ -204,5 +201,4 @@ def download(url, output=None):
                 os.remove(tmp_file)
         except OSError:
             pass
-
     return output
