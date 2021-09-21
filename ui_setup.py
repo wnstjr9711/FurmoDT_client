@@ -16,6 +16,9 @@ class AdvancedSetup(Ui_MainWindow):
         # ui 불러오기
         self.setupUi(main)
 
+        # 프로젝트 목록
+        self.project_list = list()
+
         # 초기화면 설정
         self.default_view()
 
@@ -67,8 +70,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.player.positionChanged.connect(self.video_position_event)
         # ********************** 동영상 플레이어 조작 이벤트 ********************** #
 
-        # 프로젝트 목록
-        self.project_list = list()
         # 작업 영상 url, name
         self.work_video = None
 
@@ -91,6 +92,8 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_widget.setVisible(True)
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
+        self.project_list.clear()
+        self.project_table.clear()
 
     def work_view(self):
         self.project_widget.setVisible(False)
@@ -200,7 +203,7 @@ class AdvancedSetup(Ui_MainWindow):
             if type(i) == QLineEdit and i.text():
                 self.client['create_project'].append(i.text())
                 i.clear()
-        # TODO // 에러 체크 구문
+        # TODO // URL 검증 및 에러 체크 구문
         if len(self.client['create_project']) != 2:
             self.client['create_project'].clear()
 
@@ -219,18 +222,21 @@ class AdvancedSetup(Ui_MainWindow):
 
     def load_video_event(self):
         fileid, filename = self.work_video[0].split('/')[-2], self.work_video[1]
-        location = os.path.join(os.getcwd(), 'video_download')
+        folder_name = 'video_download'
+        location = os.path.join(os.getcwd(), folder_name)
         if not os.path.exists(location):
             os.mkdir(location)
         video_path = os.path.join(location, filename)
-        download_link = 'https://drive.google.com/uc?id=' + fileid
-        # download_link = 'https://drive.google.com/uc?id=' + '1qNGOzi_PgHNaM056GeZlD6dKeg3JjmWo'
-        gdown.download(download_link, video_path)
-
-        self.playlist.clear()
-        self.playlist.addMedia(QUrl(video_path))
-        self.player.setPlaylist(self.playlist)
+        if not os.path.exists(video_path):
+            download_link = 'https://drive.google.com/uc?id=' + fileid
+            gdown.download(download_link, video_path)
+        else:
+            self.playlist.clear()
+            self.playlist.addMedia(QUrl(folder_name + '/' + filename))
+            self.player.setPlaylist(self.playlist)
     # ********************** 작업 이벤트 함수 ********************** #
 
 
-# TODO // 동영상 업로드 확인(loadvideoevent) 내일 할일 작업 시트 만들기
+
+
+# TODO // 동영상 업로드 확인(loadvideoevent), 자막 확인, 작업 시트 만들기

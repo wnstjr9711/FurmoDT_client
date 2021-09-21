@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationCujItF.ui'
+## Form generated from reading UI file 'applicationJtxKCZ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -35,6 +35,12 @@ class Ui_MainWindow(object):
         self.videowidget.setObjectName(u"videowidget")
         self.videowidget.setMinimumSize(QSize(480, 360))
         self.videowidget.setStyleSheet(u"background-color: rgb(0, 0, 0);")
+        self.subtitle = QLabel(self.videowidget)
+        self.subtitle.setObjectName(u"subtitle")
+        self.subtitle.setGeometry(QRect(5, 310, 471, 41))
+        self.subtitle.setStyleSheet(u"color: rgb(255, 255, 255);\n"
+"font: 9pt \"\ub9d1\uc740 \uace0\ub515\";")
+        self.subtitle.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout.addWidget(self.videowidget, 0, Qt.AlignHCenter|Qt.AlignVCenter)
 
@@ -219,6 +225,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"FurmoDT", None))
+        self.subtitle.setText(QCoreApplication.translate("MainWindow", u"subtitle", None))
         self.playtime.setText(QCoreApplication.translate("MainWindow", u"0:00:00 / 0:00:00", None))
         self.play.setText(QCoreApplication.translate("MainWindow", u"\u25b6", None))
 #if QT_CONFIG(shortcut)
