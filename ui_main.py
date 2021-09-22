@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationpnVKYF.ui'
+## Form generated from reading UI file 'application2rISLuu.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1186, 663)
+        MainWindow.resize(1294, 768)
         icon = QIcon()
         icon.addFile(u"files/furmodt-favicon.ico", QSize(), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -186,18 +186,25 @@ class Ui_MainWindow(object):
 
         self.load_video = QPushButton(self.widget)
         self.load_video.setObjectName(u"load_video")
+        self.load_video.setEnabled(True)
 
         self.horizontalLayout.addWidget(self.load_video)
 
-        self.pushButton_4 = QPushButton(self.widget)
-        self.pushButton_4.setObjectName(u"pushButton_4")
+        self.save = QPushButton(self.widget)
+        self.save.setObjectName(u"save")
 
-        self.horizontalLayout.addWidget(self.pushButton_4)
+        self.horizontalLayout.addWidget(self.save)
 
         self.pushButton = QPushButton(self.widget)
         self.pushButton.setObjectName(u"pushButton")
 
         self.horizontalLayout.addWidget(self.pushButton)
+
+        self.pushButton_2 = QPushButton(self.widget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+        self.pushButton_2.setEnabled(False)
+
+        self.horizontalLayout.addWidget(self.pushButton_2)
 
 
         self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
@@ -242,7 +249,8 @@ class Ui_MainWindow(object):
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
         self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
         self.load_video.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc5f0\uacb0", None))
-        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.save.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ubd88\ub7ec\uc624\uae30", None))
+        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ub0b4\ubcf4\ub0b4\uae30", None))
+        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc885\ub8cc", None))
     # retranslateUi
 

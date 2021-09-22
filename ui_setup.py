@@ -1,9 +1,9 @@
 from PySide2 import QtCore
-from PySide2.QtCore import QUrl, QTimer, QThread
+from PySide2.QtCore import QUrl, QTimer, QThread, QSize
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
-from PySide2.QtWidgets import QLineEdit, QLabel
+from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem
 from ui_main import Ui_MainWindow
 import datetime
 import os
@@ -14,17 +14,14 @@ class AdvancedSetup(Ui_MainWindow):
     def __init__(self, main):
         super().__init__()
         # ui 불러오기
-        self.setupUi(main)
-
+        self.main = main
+        self.setupUi(self.main)
         # 프로젝트 목록
         self.project_list = list()
 
-        # 초기화면 설정
-        self.default_view()
-
         # ui 설정
         font = QFont()
-        font.setPointSize(15)
+        font.setPointSize(20)
         self.project_table.setFont(font)
         # self.project_table.setColumnCount(2)
         # self.project_table.setHorizontalHeaderLabels(['프로젝트 이름', '동영상 이름'])
@@ -65,6 +62,13 @@ class AdvancedSetup(Ui_MainWindow):
             "get_project_work": None,     # None: project,  project id: work
         }
 
+        # 작업 영상 url, name
+        self.work_video = None
+        self.thread_video_download = None
+
+        # 초기화면 설정
+        self.default_view()
+
         # ********************** 동영상 플레이어 조작 이벤트 ********************** #
         self.play.clicked.connect(self.play_clicked_event)
         self.prev.clicked.connect(self.pass_prev_video)
@@ -76,10 +80,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.player.durationChanged.connect(self.video_duration_event)
         self.player.positionChanged.connect(self.video_position_event)
         # ********************** 동영상 플레이어 조작 이벤트 ********************** #
-
-        # 작업 영상 url, name
-        self.work_video = None
-        self.thread_video_download = None
 
         # ********************** 프로젝트 조작 이벤트 ********************** #
         # 생성
@@ -97,11 +97,14 @@ class AdvancedSetup(Ui_MainWindow):
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
-        self.project_widget.setVisible(True)
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
+        self.project_widget.setVisible(True)
         self.project_list.clear()
         self.project_table.clear()
+        self.playlist.clear()
+        self.work_video = None
+        self.main.resize(QSize(1080, 720))
 
     def work_view(self):
         self.project_widget.setVisible(False)
@@ -113,7 +116,9 @@ class AdvancedSetup(Ui_MainWindow):
             add = set(ret).difference(self.project_list)
             for i in sorted(add):
                 self.project_list.append(i)
-                self.project_table.addItem(i)
+                item = QListWidgetItem(i)
+                item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                self.project_table.addItem(item)
 
         # 자막 화면 갱신
         else:
@@ -233,8 +238,7 @@ class AdvancedSetup(Ui_MainWindow):
             os.mkdir(location)
         video_path = os.path.join(location, filename)
         if not os.path.exists(video_path):
-            download_link = 'https://drive.google.com/uc?id=' + fileid
-            self.thread_video_download = DownLoadThread(self.load_video, download_link, video_path)
+            self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
             self.thread_video_download.start()
         self.playlist.clear()
         self.playlist.addMedia(QUrl(folder_name + '/' + filename))
@@ -244,16 +248,19 @@ class AdvancedSetup(Ui_MainWindow):
 
 # ********************** 쓰레드 작업 ********************** #
 class DownLoadThread(QThread):
-    def __init__(self, button, dl, vp):
+    def __init__(self, main, download_link, video_path):
         super(DownLoadThread, self).__init__()
-        self.download_link = dl
-        self.video_path = vp
-        self.button = button
+        self.main = main
+        self.download_link = download_link
+        self.video_path = video_path
+        self.button = self.main.load_video
 
     def run(self):
         self.button.setEnabled(False)
         gdown.download(self.download_link, self.video_path)
         self.button.setEnabled(True)
+        self.main.load_video_event()
+
 # ********************** 쓰레드 작업 ********************** #
 
-# TODO // 동영상 업로드 확인(loadvideoevent), 자막 확인, 작업 시트 만들기
+# TODO // 자막 확인, 작업 시트 만들기
