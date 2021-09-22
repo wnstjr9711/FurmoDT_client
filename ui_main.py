@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationJtxKCZ.ui'
+## Form generated from reading UI file 'applicationjnsRLn.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -34,20 +34,17 @@ class Ui_MainWindow(object):
         self.videowidget = QWidget(self.playerwidget)
         self.videowidget.setObjectName(u"videowidget")
         self.videowidget.setMinimumSize(QSize(480, 360))
+        self.videowidget.setMaximumSize(QSize(480, 360))
         self.videowidget.setStyleSheet(u"background-color: rgb(0, 0, 0);")
-        self.subtitle = QLabel(self.videowidget)
-        self.subtitle.setObjectName(u"subtitle")
-        self.subtitle.setGeometry(QRect(5, 310, 471, 41))
-        self.subtitle.setStyleSheet(u"color: rgb(255, 255, 255);\n"
-"font: 9pt \"\ub9d1\uc740 \uace0\ub515\";")
-        self.subtitle.setAlignment(Qt.AlignCenter)
+        self.gridLayout = QGridLayout(self.videowidget)
+        self.gridLayout.setObjectName(u"gridLayout")
 
-        self.verticalLayout.addWidget(self.videowidget, 0, Qt.AlignHCenter|Qt.AlignVCenter)
+        self.verticalLayout.addWidget(self.videowidget, 0, Qt.AlignHCenter)
 
         self.widget_5 = QWidget(self.playerwidget)
         self.widget_5.setObjectName(u"widget_5")
         self.widget_5.setMinimumSize(QSize(510, 0))
-        self.widget_5.setMaximumSize(QSize(510, 16777215))
+        self.widget_5.setMaximumSize(QSize(510, 76))
         self.verticalLayout_2 = QVBoxLayout(self.widget_5)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.videoSlider = QSlider(self.widget_5)
@@ -66,7 +63,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.playtime)
 
 
-        self.verticalLayout.addWidget(self.widget_5, 0, Qt.AlignHCenter)
+        self.verticalLayout.addWidget(self.widget_5)
 
         self.widget_3 = QWidget(self.playerwidget)
         self.widget_3.setObjectName(u"widget_3")
@@ -108,7 +105,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.soundSlider)
 
 
-        self.verticalLayout.addWidget(self.widget_3, 0, Qt.AlignHCenter)
+        self.verticalLayout.addWidget(self.widget_3)
 
         self.widget_4 = QWidget(self.playerwidget)
         self.widget_4.setObjectName(u"widget_4")
@@ -225,7 +222,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"FurmoDT", None))
-        self.subtitle.setText(QCoreApplication.translate("MainWindow", u"subtitle", None))
         self.playtime.setText(QCoreApplication.translate("MainWindow", u"0:00:00 / 0:00:00", None))
         self.play.setText(QCoreApplication.translate("MainWindow", u"\u25b6", None))
 #if QT_CONFIG(shortcut)
