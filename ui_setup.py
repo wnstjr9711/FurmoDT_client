@@ -1,6 +1,6 @@
 from PySide2 import QtCore
-from PySide2.QtCore import QUrl, QTimer, QThread, QPoint
-from PySide2.QtGui import QFont, QPainter, QColor
+from PySide2.QtCore import QUrl, QTimer, QThread
+from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel
@@ -48,6 +48,14 @@ class AdvancedSetup(Ui_MainWindow):
         self.video_widget = QVideoWidget(self.videowidget)
         self.video_widget.resize(QtCore.QSize(480, 360))
         self.player.setVideoOutput(self.video_widget)
+        # 자막
+        self.subtitle = QLabel(self.videowidget)
+        x, y = self.video_widget.width(), self.video_widget.height()/8
+        self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
+        self.subtitle.setStyleSheet("background-color: black;"
+                                    "color: white;")
+        self.subtitle.setAlignment(QtCore.Qt.AlignCenter)
+        self.subtitle.setText("test1\ntest2\ntest3")
 
         # 클라이언트 초기화
         self.client = {
@@ -71,7 +79,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         # 작업 영상 url, name
         self.work_video = None
-        self.thread_video_download = DownLoadThread()
+        self.thread_video_download = None
 
         # ********************** 프로젝트 조작 이벤트 ********************** #
         # 생성
@@ -226,31 +234,26 @@ class AdvancedSetup(Ui_MainWindow):
         video_path = os.path.join(location, filename)
         if not os.path.exists(video_path):
             download_link = 'https://drive.google.com/uc?id=' + fileid
-            self.thread_video_download.set_args(download_link, video_path)
+            self.thread_video_download = DownLoadThread(self.load_video, download_link, video_path)
             self.thread_video_download.start()
-        else:
-            self.playlist.clear()
-            self.playlist.addMedia(QUrl(folder_name + '/' + filename))
-            self.player.setPlaylist(self.playlist)
-
+        self.playlist.clear()
+        self.playlist.addMedia(QUrl(folder_name + '/' + filename))
+        self.player.setPlaylist(self.playlist)
     # ********************** 작업 이벤트 함수 ********************** #
 
 
+# ********************** 쓰레드 작업 ********************** #
 class DownLoadThread(QThread):
-    def __init__(self):
+    def __init__(self, button, dl, vp):
         super(DownLoadThread, self).__init__()
-        self.download_link = None
-        self.video_path = None
-
-    def set_args(self, dl, vp):
         self.download_link = dl
         self.video_path = vp
+        self.button = button
 
     def run(self):
+        self.button.setEnabled(False)
         gdown.download(self.download_link, self.video_path)
-
-    def stop(self):
-        self.quit()
-
+        self.button.setEnabled(True)
+# ********************** 쓰레드 작업 ********************** #
 
 # TODO // 동영상 업로드 확인(loadvideoevent), 자막 확인, 작업 시트 만들기

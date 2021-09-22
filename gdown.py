@@ -3,7 +3,6 @@ import os
 import re
 import shutil
 import tempfile
-
 import six
 import tqdm
 import sys
@@ -92,7 +91,7 @@ def parse_url(url, warning=True):
     return file_id, is_download_link
 
 
-def download(url, output=None):
+def download(url, output):
     """Download file from URL.
     Parameters
     ----------
