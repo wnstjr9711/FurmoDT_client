@@ -63,7 +63,6 @@ class AdvancedSetup(Ui_MainWindow):
             "GET": None,     # None: project,  project id: work
             "POST": dict(),
         }
-        self.setdefault_client()
 
         # 작업 영상 url, name
         self.work_video = None
@@ -98,7 +97,7 @@ class AdvancedSetup(Ui_MainWindow):
         # ********************** 작업 조작 이벤트 ********************** #
 
     def setdefault_client(self):
-        self.client['POST'] = {'0': None, '1': None, '2': None, '3': None}
+        self.client['POST'] = {}
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
