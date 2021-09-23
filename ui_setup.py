@@ -9,6 +9,8 @@ import datetime
 import os
 import gdown
 
+FOLDER = 'video_download'
+
 
 class AdvancedSetup(Ui_MainWindow):
     def __init__(self, main):
@@ -35,7 +37,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         # 타이머
         self.timer = QTimer()
-        self.timer.setInterval(10)
+        self.timer.setInterval(1)  # 1/1000 sec
         self.timer.timeout.connect(self.timeout)
 
         # 동영상 플레이어
@@ -58,9 +60,10 @@ class AdvancedSetup(Ui_MainWindow):
         self.client = {
             "id": "",
             "qualified": "",
-            "create_project": list(),
-            "get_project_work": None,     # None: project,  project id: work
+            "GET": None,     # None: project,  project id: work
+            "POST": dict(),
         }
+        self.setdefault_client()
 
         # 작업 영상 url, name
         self.work_video = None
@@ -75,8 +78,8 @@ class AdvancedSetup(Ui_MainWindow):
         self.next.clicked.connect(self.pass_next_video)
         self.stop.clicked.connect(self.stop_video)
         self.soundSlider.valueChanged.connect(self.sound_slider_event)
-        self.videoSlider.sliderPressed.connect(self.video_slider_pressed_event)
-        self.videoSlider.sliderReleased.connect(self.video_slider_released_event)
+        self.videoSlider.sliderPressed.connect(self.pause_video)
+        self.videoSlider.sliderReleased.connect(self.set_position)
         self.player.durationChanged.connect(self.video_duration_event)
         self.player.positionChanged.connect(self.video_position_event)
         # ********************** 동영상 플레이어 조작 이벤트 ********************** #
@@ -92,8 +95,10 @@ class AdvancedSetup(Ui_MainWindow):
 
         # ********************** 작업 조작 이벤트 ********************** #
         self.quit_work.clicked.connect(self.back_to_project)
-        self.load_video.clicked.connect(self.load_video_event)
         # ********************** 작업 조작 이벤트 ********************** #
+
+    def setdefault_client(self):
+        self.client['POST'] = {'0': None, '1': None, '2': None, '3': None}
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
@@ -103,7 +108,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_list.clear()
         self.project_table.clear()
         self.playlist.clear()
-        self.work_video = None
         self.main.resize(QSize(1080, 720))
 
     def work_view(self):
@@ -113,23 +117,25 @@ class AdvancedSetup(Ui_MainWindow):
     def refresh(self, ret):
         # 프로젝트 목록 갱신
         if type(ret) == list:
+            self.work_video = None
             add = set(ret).difference(self.project_list)
             for i in sorted(add):
                 self.project_list.append(i)
                 item = QListWidgetItem(i)
                 item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.project_table.addItem(item)
-
         # 자막 화면 갱신
         else:
             if self.work_video != ret['metadata']:
                 self.work_video = ret['metadata']
+                self.set_video()
     # ********************** 화면 전환 함수 ********************** #
 
     # 타이머 함수
     def timeout(self):
         self.set_playtime(self.player.position())
         self.videoSlider.setValue(self.player.position())
+        # TODO 자막 갱신
 
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
     def play_video(self):
@@ -146,33 +152,29 @@ class AdvancedSetup(Ui_MainWindow):
 
     def pass_prev_video(self):
         if self.player.isVideoAvailable():
-            self.video_slider_pressed_event()
             target = self.player.position()-5000
             self.videoSlider.setValue(target)
             if self.videoSlider.value() == 0:
                 self.stop_video()
             else:
-                self.video_slider_released_event()
+                self.set_position()
                 self.play_video()
 
     def pass_next_video(self):
         if self.player.isVideoAvailable():
-            self.video_slider_pressed_event()
             target = self.player.position()+5000
             self.videoSlider.setValue(target)
-            self.video_slider_released_event()
+            self.set_position()
             self.play_video()
 
     def stop_video(self):
-        self.video_slider_pressed_event()
         self.videoSlider.setValue(0)
-        self.video_slider_released_event()
+        self.set_position()
+        self.pause_video()
 
     def set_playtime(self, start):
         start = str(datetime.timedelta(milliseconds=start))[:10]
         end = str(datetime.timedelta(milliseconds=self.duration))[:10]
-        if start >= end:
-            start = end
         self.playtime.setText('{} / {}'.format(start, end))
 
     def play_clicked_event(self):
@@ -195,12 +197,28 @@ class AdvancedSetup(Ui_MainWindow):
         if self.player.position() == self.duration:
             self.stop_video()
 
-    def video_slider_pressed_event(self):
-        self.pause_video()
-
-    def video_slider_released_event(self):
+    def set_position(self):
         self.player.setPosition(self.videoSlider.value())
         self.set_playtime(self.videoSlider.value())
+
+    def set_video(self):
+        filename = self.work_video[1]
+        location = os.path.join(os.getcwd(), FOLDER)
+        video_path = os.path.join(location, filename)
+        if not os.path.exists(video_path):
+            self.load_video_event(location, video_path, self.work_video[0].split('/')[-2])
+        else:
+            self.playlist.clear()
+            self.playlist.addMedia(QUrl(FOLDER + '/' + filename))
+            self.player.setPlaylist(self.playlist)
+            self.play_video()
+
+    def load_video_event(self, location, video_path, fileid):
+        if not os.path.exists(location):
+            os.mkdir(location)
+        self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
+        self.thread_video_download.start()
+
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
 
     # ********************** 프로젝트 이벤트 함수 ********************** #
@@ -209,40 +227,24 @@ class AdvancedSetup(Ui_MainWindow):
 
     def create_accept(self):
         self.project_input.setVisible(False)
-        for i in self.project_input.children():
-            if type(i) == QLineEdit and i.text():
-                self.client['create_project'].append(i.text())
-                i.clear()
+        project = filter(lambda x: type(x) == QLineEdit, self.project_input.children())
+        pid, fid = map(lambda x: x.text(), project)
+        self.client['POST'][1] = [pid, fid, gdown.getfilename(fid)]
+        clear = list(map(lambda x: x.clear(), project))
         # TODO // URL 검증 및 에러 체크 구문
-        if len(self.client['create_project']) != 2:
-            self.client['create_project'].clear()
 
     def create_reject(self):
         self.project_input.setVisible(False)
 
     def join_project(self):
-        self.client['get_project_work'] = self.project_table.currentItem().text()
+        self.client['GET'] = self.project_table.currentItem().text()
         self.work_view()
     # ********************** 프로젝트 이벤트 함수 ********************** #
 
     # ********************** 작업 이벤트 함수 ********************** #
     def back_to_project(self):
-        self.client['get_project_work'] = None
+        self.client['GET'] = None
         self.default_view()
-
-    def load_video_event(self):
-        fileid, filename = self.work_video[0].split('/')[-2], self.work_video[1]
-        folder_name = 'video_download'
-        location = os.path.join(os.getcwd(), folder_name)
-        if not os.path.exists(location):
-            os.mkdir(location)
-        video_path = os.path.join(location, filename)
-        if not os.path.exists(video_path):
-            self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
-            self.thread_video_download.start()
-        self.playlist.clear()
-        self.playlist.addMedia(QUrl(folder_name + '/' + filename))
-        self.player.setPlaylist(self.playlist)
     # ********************** 작업 이벤트 함수 ********************** #
 
 
@@ -253,13 +255,11 @@ class DownLoadThread(QThread):
         self.main = main
         self.download_link = download_link
         self.video_path = video_path
-        self.button = self.main.load_video
+        self.bar = self.main.load_video
 
     def run(self):
-        self.button.setEnabled(False)
-        gdown.download(self.download_link, self.video_path)
-        self.button.setEnabled(True)
-        self.main.load_video_event()
+        gdown.download(self.download_link, self.video_path, self.bar)
+        self.main.set_video()
 
 # ********************** 쓰레드 작업 ********************** #
 
