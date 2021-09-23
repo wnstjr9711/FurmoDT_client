@@ -11,6 +11,7 @@ import warnings
 from six.moves import urllib_parse
 import os.path as osp
 import requests
+from bs4 import BeautifulSoup
 
 home = osp.expanduser("~")
 CHUNK_SIZE = 512 * 1024
@@ -91,7 +92,7 @@ def parse_url(url, warning=True):
     return file_id, is_download_link
 
 
-def download(url, output):
+def download(url, output, bar):
     """Download file from URL.
     Parameters
     ----------
@@ -180,12 +181,11 @@ def download(url, output):
         f = output
 
     try:
-        pbar = tqdm.tqdm(res.content)
-        # print(len(res.content))  100%
+        pbar = tqdm.tqdm(res.content, bar_format='{desc}: {percentage:3.0f}%')
         for chunk in res.iter_content(chunk_size=CHUNK_SIZE):
             f.write(chunk)
-            print(pbar.n)
             pbar.update(len(chunk))
+            bar.setText(str(pbar))  # 진행도 표시
         pbar.close()
         if tmp_file:
             f.close()
@@ -201,3 +201,11 @@ def download(url, output):
         except OSError:
             pass
     return output
+
+
+def getfilename(fid):
+    # 공유링크로 파일이름 가져오기
+    res = requests.get(fid)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    f_name = soup.find('title').text.split()[0]
+    return f_name
