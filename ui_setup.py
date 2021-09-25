@@ -103,11 +103,15 @@ class AdvancedSetup(Ui_MainWindow):
     def default_view(self):
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
+        self.main.resize(QSize(1080, 720))
+
+    def project_view(self):
+        self.work_widget.setVisible(False)
         self.project_widget.setVisible(True)
+        self.project_input.setVisible(False)
         self.project_list.clear()
         self.project_table.clear()
         self.playlist.clear()
-        self.main.resize(QSize(1080, 720))
 
     def work_view(self):
         self.project_widget.setVisible(False)
@@ -244,7 +248,7 @@ class AdvancedSetup(Ui_MainWindow):
     # ********************** 작업 이벤트 함수 ********************** #
     def back_to_project(self):
         self.client['GET'] = None
-        self.default_view()
+        self.project_view()
     # ********************** 작업 이벤트 함수 ********************** #
 
 
@@ -260,7 +264,6 @@ class DownLoadThread(QThread):
     def run(self):
         gdown.download(self.download_link, self.video_path, self.bar)
         self.main.set_video()
-
 # ********************** 쓰레드 작업 ********************** #
 
 # TODO // 자막 확인, 작업 시트 만들기
