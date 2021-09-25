@@ -49,7 +49,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.player.setVideoOutput(self.video_widget)
         # 자막
         self.subtitle = QLabel(self.videowidget)
-        x, y = self.video_widget.width(), self.video_widget.height()/8
+        x, y = self.video_widget.width(), int(self.video_widget.height()/8)
         self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
         self.subtitle.setStyleSheet("background-color: black;"
                                     "color: white;")
@@ -128,6 +128,7 @@ class AdvancedSetup(Ui_MainWindow):
             if self.work_video != ret['metadata']:
                 self.work_video = ret['metadata']
                 self.set_video()
+            # TODO 자막 갱신
     # ********************** 화면 전환 함수 ********************** #
 
     # 타이머 함수
