@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationiWaINR.ui'
+## Form generated from reading UI file 'applicationzLkenJ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -212,13 +212,13 @@ class Ui_MainWindow(object):
         self.work_table = QTableWidget(self.work_widget)
         if (self.work_table.columnCount() < 4):
             self.work_table.setColumnCount(4)
-        if (self.work_table.rowCount() < 65536):
-            self.work_table.setRowCount(65536)
+        if (self.work_table.rowCount() < 9999):
+            self.work_table.setRowCount(9999)
         self.work_table.setObjectName(u"work_table")
         self.work_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.work_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.work_table.setAutoScroll(True)
-        self.work_table.setRowCount(65536)
+        self.work_table.setRowCount(9999)
         self.work_table.setColumnCount(4)
         self.work_table.horizontalHeader().setVisible(True)
         self.work_table.horizontalHeader().setCascadingSectionResizes(False)

@@ -3,7 +3,7 @@ from PySide2.QtCore import QUrl, QTimer, QThread, QSize
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
-from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem
+from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView
 from ui_main import Ui_MainWindow
 import datetime
 import os
@@ -100,6 +100,13 @@ class AdvancedSetup(Ui_MainWindow):
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
+        self.work_table.setHorizontalHeaderLabels(['번호', 'TC_IN', 'TC_OUT', '원어'])
+        for i in range(self.work_table.rowCount()):
+            work_id = QTableWidgetItem(str(i + 1))
+            work_id.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.work_table.setItem(i, 0, work_id)
+        self.work_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
         self.main.resize(QSize(1080, 720))
@@ -131,6 +138,7 @@ class AdvancedSetup(Ui_MainWindow):
             if self.work_video != ret['metadata']:
                 self.work_video = ret['metadata']
                 self.set_video()
+            print(ret['work'])
             # TODO 자막 화면 갱신
     # ********************** 화면 전환 함수 ********************** #
 
