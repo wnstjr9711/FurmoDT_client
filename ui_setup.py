@@ -32,8 +32,6 @@ class AdvancedSetup(Ui_MainWindow):
         # 색상 설정
         self.project_table.setStyleSheet("border-radius: 10px;"
                                          "background-color: rgb(255, 255, 255);")
-        self.work_table.setStyleSheet("border-radius: 10px;"
-                                      "background-color: rgb(255, 255, 255);")
 
         # 타이머
         self.timer = QTimer()
@@ -96,6 +94,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.quit_work.clicked.connect(self.back_to_project)
         # ********************** 작업 조작 이벤트 ********************** #
 
+    # post 메시지 초기화
     def setdefault_client(self):
         self.client['POST'] = {}
 
@@ -132,7 +131,7 @@ class AdvancedSetup(Ui_MainWindow):
             if self.work_video != ret['metadata']:
                 self.work_video = ret['metadata']
                 self.set_video()
-            # TODO 자막 갱신
+            # TODO 자막 화면 갱신
     # ********************** 화면 전환 함수 ********************** #
 
     # 타이머 함수
@@ -231,7 +230,7 @@ class AdvancedSetup(Ui_MainWindow):
 
     def create_accept(self):
         self.project_input.setVisible(False)
-        project = filter(lambda x: type(x) == QLineEdit, self.project_input.children())
+        project = list(filter(lambda x: type(x) == QLineEdit, self.project_input.children()))
         pid, fid = map(lambda x: x.text(), project)
         self.client['POST'][1] = [pid, fid, gdown.getfilename(fid)]
         clear = list(map(lambda x: x.clear(), project))

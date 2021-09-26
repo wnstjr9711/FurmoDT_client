@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'application2rISLuu.ui'
+## Form generated from reading UI file 'applicationiWaINR.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -210,7 +210,23 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
 
         self.work_table = QTableWidget(self.work_widget)
+        if (self.work_table.columnCount() < 4):
+            self.work_table.setColumnCount(4)
+        if (self.work_table.rowCount() < 65536):
+            self.work_table.setRowCount(65536)
         self.work_table.setObjectName(u"work_table")
+        self.work_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.work_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.work_table.setAutoScroll(True)
+        self.work_table.setRowCount(65536)
+        self.work_table.setColumnCount(4)
+        self.work_table.horizontalHeader().setVisible(True)
+        self.work_table.horizontalHeader().setCascadingSectionResizes(False)
+        self.work_table.horizontalHeader().setProperty("showSortIndicator", False)
+        self.work_table.horizontalHeader().setStretchLastSection(False)
+        self.work_table.verticalHeader().setVisible(False)
+        self.work_table.verticalHeader().setCascadingSectionResizes(False)
+        self.work_table.verticalHeader().setProperty("showSortIndicator", False)
 
         self.gridLayout_3.addWidget(self.work_table, 1, 0, 1, 1)
 
