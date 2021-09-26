@@ -13,4 +13,3 @@ async def conn(main):
                 main.setdefault_client()
             ret = await websocket.recv()
             main.refresh(json.loads(ret))  # receive 값에 맞게 작업 새로고침
-            print(ret)

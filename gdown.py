@@ -185,7 +185,7 @@ def download(url, output, bar):
         for chunk in res.iter_content(chunk_size=CHUNK_SIZE):
             f.write(chunk)
             pbar.update(len(chunk))
-            bar.setText(str(pbar))  # 진행도 표시
+            # bar.setText(str(pbar))  # 진행도 표시
         pbar.close()
         if tmp_file:
             f.close()

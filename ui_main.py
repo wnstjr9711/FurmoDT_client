@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationzLkenJ.ui'
+## Form generated from reading UI file 'applicationxEyOSU.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -184,21 +184,21 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.quit_work)
 
-        self.load_video = QPushButton(self.widget)
-        self.load_video.setObjectName(u"load_video")
-        self.load_video.setEnabled(True)
+        self.add_work = QPushButton(self.widget)
+        self.add_work.setObjectName(u"add_work")
+        self.add_work.setEnabled(True)
 
-        self.horizontalLayout.addWidget(self.load_video)
+        self.horizontalLayout.addWidget(self.add_work)
 
-        self.save = QPushButton(self.widget)
-        self.save.setObjectName(u"save")
+        self.load_work = QPushButton(self.widget)
+        self.load_work.setObjectName(u"load_work")
 
-        self.horizontalLayout.addWidget(self.save)
+        self.horizontalLayout.addWidget(self.load_work)
 
-        self.pushButton = QPushButton(self.widget)
-        self.pushButton.setObjectName(u"pushButton")
+        self.save_work = QPushButton(self.widget)
+        self.save_work.setObjectName(u"save_work")
 
-        self.horizontalLayout.addWidget(self.pushButton)
+        self.horizontalLayout.addWidget(self.save_work)
 
         self.pushButton_2 = QPushButton(self.widget)
         self.pushButton_2.setObjectName(u"pushButton_2")
@@ -264,9 +264,9 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
         self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
-        self.load_video.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc5f0\uacb0", None))
-        self.save.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ubd88\ub7ec\uc624\uae30", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ub0b4\ubcf4\ub0b4\uae30", None))
+        self.add_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ucd94\uac00\ud558\uae30", None))
+        self.load_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ubd88\ub7ec\uc624\uae30", None))
+        self.save_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ub0b4\ubcf4\ub0b4\uae30", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc885\ub8cc", None))
     # retranslateUi
 

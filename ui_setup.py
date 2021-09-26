@@ -1,5 +1,4 @@
-from PySide2 import QtCore
-from PySide2.QtCore import QUrl, QTimer, QThread, QSize
+from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
@@ -8,6 +7,7 @@ from ui_main import Ui_MainWindow
 import datetime
 import os
 import gdown
+from pandas import read_json
 
 FOLDER = 'video_download'
 
@@ -43,7 +43,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist(self.player)
         self.video_widget = QVideoWidget(self.videowidget)
-        self.video_widget.resize(QtCore.QSize(480, 360))
+        self.video_widget.resize(QSize(480, 360))
         self.player.setVideoOutput(self.video_widget)
         # 자막
         self.subtitle = QLabel(self.videowidget)
@@ -51,7 +51,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
         self.subtitle.setStyleSheet("background-color: black;"
                                     "color: white;")
-        self.subtitle.setAlignment(QtCore.Qt.AlignCenter)
+        self.subtitle.setAlignment(Qt.AlignCenter)
         self.subtitle.setText("test1\ntest2\ntest3")
 
         # 클라이언트 초기화
@@ -92,6 +92,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         # ********************** 작업 조작 이벤트 ********************** #
         self.quit_work.clicked.connect(self.back_to_project)
+        self.add_work.clicked.connect(self.add_language)
         # ********************** 작업 조작 이벤트 ********************** #
 
     # post 메시지 초기화
@@ -100,13 +101,16 @@ class AdvancedSetup(Ui_MainWindow):
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
-        self.work_table.setHorizontalHeaderLabels(['번호', 'TC_IN', 'TC_OUT', '원어'])
+        # 작업 화면 초기화
+        # self.work_table.setHorizontalHeaderLabels(['번호', 'TC_IN', 'TC_OUT', '원어'])
         for i in range(self.work_table.rowCount()):
             work_id = QTableWidgetItem(str(i + 1))
-            work_id.setTextAlignment(QtCore.Qt.AlignCenter)
+            work_id.setFlags(work_id.flags() ^ Qt.ItemIsSelectable ^ Qt.ItemIsEditable)
+            work_id.setTextAlignment(Qt.AlignCenter)
             self.work_table.setItem(i, 0, work_id)
-        self.work_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-
+        for i in range(3):
+            self.work_table.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
+        # 작업 화면 초기화
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
         self.main.resize(QSize(1080, 720))
@@ -131,14 +135,22 @@ class AdvancedSetup(Ui_MainWindow):
             for i in sorted(add):
                 self.project_list.append(i)
                 item = QListWidgetItem(i)
-                item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                item.setTextAlignment(Qt.AlignHCenter)
                 self.project_table.addItem(item)
         # 자막 화면 갱신
         else:
+            # 프로젝트 확인
             if self.work_video != ret['metadata']:
                 self.work_video = ret['metadata']
                 self.set_video()
             print(ret['work'])
+            work_data = read_json(ret['work'])
+            # header 갱신
+            if self.work_table.horizontalHeader() != list(work_data):
+                self.work_table.setColumnCount(len(list(work_data)))
+                self.work_table.setHorizontalHeaderLabels(list(work_data))
+            # 작업 갱신
+            # TODO 자막 화면 갱신
             # TODO 자막 화면 갱신
     # ********************** 화면 전환 함수 ********************** #
 
@@ -184,9 +196,10 @@ class AdvancedSetup(Ui_MainWindow):
         self.pause_video()
 
     def set_playtime(self, start):
-        start = str(datetime.timedelta(milliseconds=start))[:10]
-        end = str(datetime.timedelta(milliseconds=self.duration))[:10]
-        self.playtime.setText('{} / {}'.format(start, end))
+        start = str(datetime.timedelta(milliseconds=start)).split(':')
+        end = str(datetime.timedelta(milliseconds=self.duration)).split(':')
+        start_sec, end_sec = start.pop(-1)[:6], end.pop(-1)[:6]
+        self.playtime.setText('{}:{}:{} / {}:{}:{}'.format(*start, start_sec, *end, end_sec))
 
     def play_clicked_event(self):
         if self.play.text() == '❚❚':
@@ -213,11 +226,11 @@ class AdvancedSetup(Ui_MainWindow):
         self.set_playtime(self.videoSlider.value())
 
     def set_video(self):
-        filename = self.work_video[1]
+        filename = self.work_video['video']
         location = os.path.join(os.getcwd(), FOLDER)
         video_path = os.path.join(location, filename)
         if not os.path.exists(video_path):
-            self.load_video_event(location, video_path, self.work_video[0].split('/')[-2])
+            self.load_video_event(location, video_path, self.work_video['url'].split('/')[-2])
         else:
             self.playlist.clear()
             self.playlist.addMedia(QUrl(FOLDER + '/' + filename))
@@ -256,6 +269,12 @@ class AdvancedSetup(Ui_MainWindow):
     def back_to_project(self):
         self.client['GET'] = None
         self.project_view()
+
+    def add_language(self):
+        self.client['POST'][3] = [self.work_video['key'], '영어']
+        if '영어' == self.work_table.horizontalHeaderItem(4).text():
+            self.client['POST'][3] = [self.work_video['key'], '영어2']
+        # TODO 언어 선택
     # ********************** 작업 이벤트 함수 ********************** #
 
 
@@ -266,10 +285,14 @@ class DownLoadThread(QThread):
         self.main = main
         self.download_link = download_link
         self.video_path = video_path
-        self.bar = self.main.load_video
+        # TODO 다운로드 진행률 표시
+        # self.bar = self.main.load_video
+        # gdown 188번째 줄
+        # 295번째 줄
+        # TODO 다운로드 진행률 표시
 
     def run(self):
-        gdown.download(self.download_link, self.video_path, self.bar)
+        gdown.download(self.download_link, self.video_path, None)  #, self.bar)
         self.main.set_video()
 # ********************** 쓰레드 작업 ********************** #
 
