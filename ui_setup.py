@@ -1,3 +1,4 @@
+import pandas as pd
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -63,7 +64,8 @@ class AdvancedSetup(Ui_MainWindow):
         }
 
         # 작업 영상 url, name
-        self.work_video = None
+        self.work_video = dict()
+        self.work_data = pd.DataFrame()
         self.thread_video_download = None
 
         # 초기화면 설정
@@ -99,10 +101,15 @@ class AdvancedSetup(Ui_MainWindow):
     def setdefault_client(self):
         self.client['POST'] = {}
 
+    # 타이머 함수
+    def timeout(self):
+        self.set_playtime(self.player.position())
+        self.videoSlider.setValue(self.player.position())
+        # TODO 자막 갱신
+
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
         # 작업 화면 초기화
-        # self.work_table.setHorizontalHeaderLabels(['번호', 'TC_IN', 'TC_OUT', '원어'])
         for i in range(self.work_table.rowCount()):
             work_id = QTableWidgetItem(str(i + 1))
             work_id.setFlags(work_id.flags() ^ Qt.ItemIsSelectable ^ Qt.ItemIsEditable)
@@ -139,26 +146,26 @@ class AdvancedSetup(Ui_MainWindow):
                 self.project_table.addItem(item)
         # 자막 화면 갱신
         else:
+            new_video = ret['metadata']
+            new_work_data = read_json(ret['work'])
+            new_header = new_work_data.columns.tolist()
             # 프로젝트 확인
-            if self.work_video != ret['metadata']:
-                self.work_video = ret['metadata']
+            if self.work_video != new_video:
+                self.work_video = new_video
                 self.set_video()
-            print(ret['work'])
-            work_data = read_json(ret['work'])
             # header 갱신
-            if self.work_table.horizontalHeader() != list(work_data):
-                self.work_table.setColumnCount(len(list(work_data)))
-                self.work_table.setHorizontalHeaderLabels(list(work_data))
+            if self.work_table.horizontalHeader() != new_header:
+                self.work_table.setColumnCount(len(new_header))
+                self.work_table.setHorizontalHeaderLabels(new_header)
             # 작업 갱신
-            # TODO 자막 화면 갱신
-            # TODO 자막 화면 갱신
+            if not self.work_data.equals(new_work_data):
+                for i in range(len(new_work_data.index)):
+                    if not self.work_data.iloc[:i].equals(new_work_data.iloc[:i]):
+                        for j in range(1, len(new_work_data.columns)):
+                            item = QTableWidgetItem(str(new_work_data.iloc[i, j]))
+                            self.work_table.setItem(i, j, item)
+                self.work_data = new_work_data
     # ********************** 화면 전환 함수 ********************** #
-
-    # 타이머 함수
-    def timeout(self):
-        self.set_playtime(self.player.position())
-        self.videoSlider.setValue(self.player.position())
-        # TODO 자막 갱신
 
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
     def play_video(self):
@@ -271,6 +278,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_view()
 
     def add_language(self):
+        # TODO 언어 선택
         self.client['POST'][3] = [self.work_video['key'], '영어']
         if '영어' == self.work_table.horizontalHeaderItem(4).text():
             self.client['POST'][3] = [self.work_video['key'], '영어2']
@@ -295,5 +303,3 @@ class DownLoadThread(QThread):
         gdown.download(self.download_link, self.video_path, None)  #, self.bar)
         self.main.set_video()
 # ********************** 쓰레드 작업 ********************** #
-
-# TODO // 자막 확인, 작업 시트 만들기
