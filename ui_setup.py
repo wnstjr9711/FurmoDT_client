@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
@@ -160,9 +161,10 @@ class AdvancedSetup(Ui_MainWindow):
             # 작업 갱신
             if not self.work_data.equals(new_work_data):
                 for i in range(len(new_work_data.index)):
-                    if not self.work_data.iloc[:i].equals(new_work_data.iloc[:i]):
-                        for j in range(1, len(new_work_data.columns)):
-                            item = QTableWidgetItem(str(new_work_data.iloc[i, j]))
+                    for j in range(1, len(new_work_data.columns)):
+                        current, target = self.work_table.item(i, j), new_work_data.iloc[i, j]
+                        if current != target and not np.isnan(target):
+                            item = QTableWidgetItem(str(target))
                             self.work_table.setItem(i, j, item)
                 self.work_data = new_work_data
     # ********************** 화면 전환 함수 ********************** #
