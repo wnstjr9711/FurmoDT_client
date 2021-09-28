@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -9,6 +7,7 @@ from ui_main import Ui_MainWindow
 import datetime
 import os
 import gdown
+import pandas as pd
 from pandas import read_json
 
 FOLDER = 'video_download'
@@ -164,10 +163,11 @@ class AdvancedSetup(Ui_MainWindow):
             if not self.work_data.equals(new_work_data):
                 # self.thread_refresh_work = RefreshWorkThread(self.work_table, new_work_data)
                 # self.thread_refresh_work.start()
+                # self.work_data = new_work_data
                 for i in range(len(new_work_data.index)):
                     for j in range(1, len(new_work_data.columns)):
                         current, target = self.work_table.item(i, j), new_work_data.iloc[i, j]
-                        if current != target:
+                        if not current or current.text() != target:
                             item = QTableWidgetItem(str(target))
                             self.work_table.setItem(i, j, item)
                 self.work_data = new_work_data
@@ -314,17 +314,20 @@ class DownLoadThread(QThread):
         gdown.download(self.download_link, self.video_path, None)  #, self.bar)
         self.main.set_video()
 
-#
+
 # class RefreshWorkThread(QThread):
 #     def __init__(self, work_table, new_work_data):
 #         super(RefreshWorkThread, self).__init__()
 #         self.work_table = work_table
 #         self.new_work_data = new_work_data
+#
 #     def run(self):
 #         for i in range(len(self.new_work_data.index)):
 #             for j in range(1, len(self.new_work_data.columns)):
 #                 current, target = self.work_table.item(i, j), self.new_work_data.iloc[i, j]
-#                 if current != target:
+#                 if not current or current.text() != target:
 #                     item = QTableWidgetItem(str(target))
 #                     self.work_table.setItem(i, j, item)
+#                 print(i, j)
+#         print(124)
 # ********************** 쓰레드 작업 ********************** #
