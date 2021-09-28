@@ -68,6 +68,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_video = dict()
         self.work_data = pd.DataFrame()
         self.thread_video_download = None
+        # self.thread_refresh_work = None
 
         # 초기화면 설정
         self.default_view()
@@ -96,6 +97,7 @@ class AdvancedSetup(Ui_MainWindow):
         # ********************** 작업 조작 이벤트 ********************** #
         self.quit_work.clicked.connect(self.back_to_project)
         self.add_work.clicked.connect(self.add_language)
+        self.work_table.itemChanged.connect(self.update_work)
         # ********************** 작업 조작 이벤트 ********************** #
 
     # post 메시지 초기화
@@ -160,10 +162,12 @@ class AdvancedSetup(Ui_MainWindow):
                 self.work_table.setHorizontalHeaderLabels(new_header)
             # 작업 갱신
             if not self.work_data.equals(new_work_data):
+                # self.thread_refresh_work = RefreshWorkThread(self.work_table, new_work_data)
+                # self.thread_refresh_work.start()
                 for i in range(len(new_work_data.index)):
                     for j in range(1, len(new_work_data.columns)):
                         current, target = self.work_table.item(i, j), new_work_data.iloc[i, j]
-                        if current != target and not np.isnan(target):
+                        if current != target:
                             item = QTableWidgetItem(str(target))
                             self.work_table.setItem(i, j, item)
                 self.work_data = new_work_data
@@ -285,6 +289,11 @@ class AdvancedSetup(Ui_MainWindow):
         if '영어' == self.work_table.horizontalHeaderItem(4).text():
             self.client['POST'][3] = [self.work_video['key'], '영어2']
         # TODO 언어 선택
+
+    def update_work(self):
+        cell = self.work_table.currentItem()
+        if cell:
+            self.client['POST'][4] = (self.work_video['key'], cell.row(), cell.column(), cell.text())
     # ********************** 작업 이벤트 함수 ********************** #
 
 
@@ -304,4 +313,18 @@ class DownLoadThread(QThread):
     def run(self):
         gdown.download(self.download_link, self.video_path, None)  #, self.bar)
         self.main.set_video()
+
+#
+# class RefreshWorkThread(QThread):
+#     def __init__(self, work_table, new_work_data):
+#         super(RefreshWorkThread, self).__init__()
+#         self.work_table = work_table
+#         self.new_work_data = new_work_data
+#     def run(self):
+#         for i in range(len(self.new_work_data.index)):
+#             for j in range(1, len(self.new_work_data.columns)):
+#                 current, target = self.work_table.item(i, j), self.new_work_data.iloc[i, j]
+#                 if current != target:
+#                     item = QTableWidgetItem(str(target))
+#                     self.work_table.setItem(i, j, item)
 # ********************** 쓰레드 작업 ********************** #
