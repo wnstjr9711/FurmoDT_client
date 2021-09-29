@@ -67,7 +67,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_video = dict()
         self.work_data = pd.DataFrame()
         self.thread_video_download = None
-        # self.thread_refresh_work = None
 
         # 초기화면 설정
         self.default_view()
@@ -111,7 +110,7 @@ class AdvancedSetup(Ui_MainWindow):
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
-        # 작업 화면 초기화
+        # 작업 화면 초기화 #
         for i in range(self.work_table.rowCount()):
             work_id = QTableWidgetItem(str(i + 1))
             work_id.setFlags(work_id.flags() ^ Qt.ItemIsSelectable ^ Qt.ItemIsEditable)
@@ -119,7 +118,7 @@ class AdvancedSetup(Ui_MainWindow):
             self.work_table.setItem(i, 0, work_id)
         for i in range(3):
             self.work_table.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
-        # 작업 화면 초기화
+        # 작업 화면 초기화 #
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
         self.main.resize(QSize(1080, 720))
@@ -161,9 +160,6 @@ class AdvancedSetup(Ui_MainWindow):
                 self.work_table.setHorizontalHeaderLabels(new_header)
             # 작업 갱신
             if not self.work_data.equals(new_work_data):
-                # self.thread_refresh_work = RefreshWorkThread(self.work_table, new_work_data)
-                # self.thread_refresh_work.start()
-                # self.work_data = new_work_data
                 for i in range(len(new_work_data.index)):
                     for j in range(1, len(new_work_data.columns)):
                         current, target = self.work_table.item(i, j), new_work_data.iloc[i, j]
@@ -248,7 +244,6 @@ class AdvancedSetup(Ui_MainWindow):
             self.playlist.clear()
             self.playlist.addMedia(QUrl(FOLDER + '/' + filename))
             self.player.setPlaylist(self.playlist)
-            self.play_video()
 
     def load_video_event(self, location, video_path, fileid):
         if not os.path.exists(location):
@@ -313,21 +308,4 @@ class DownLoadThread(QThread):
     def run(self):
         gdown.download(self.download_link, self.video_path, None)  #, self.bar)
         self.main.set_video()
-
-
-# class RefreshWorkThread(QThread):
-#     def __init__(self, work_table, new_work_data):
-#         super(RefreshWorkThread, self).__init__()
-#         self.work_table = work_table
-#         self.new_work_data = new_work_data
-#
-#     def run(self):
-#         for i in range(len(self.new_work_data.index)):
-#             for j in range(1, len(self.new_work_data.columns)):
-#                 current, target = self.work_table.item(i, j), self.new_work_data.iloc[i, j]
-#                 if not current or current.text() != target:
-#                     item = QTableWidgetItem(str(target))
-#                     self.work_table.setItem(i, j, item)
-#                 print(i, j)
-#         print(124)
 # ********************** 쓰레드 작업 ********************** #
