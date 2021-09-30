@@ -149,7 +149,7 @@ class AdvancedSetup(Ui_MainWindow):
                 # 프로젝트 확인
                 self.work_video = new_video
                 self.set_video()
-                # header 갱신 ###############수정
+                # header 갱신
                 self.work_header = new_header
                 self.work_table.setColumnCount(len(new_header))
                 self.work_table.setHorizontalHeaderLabels(new_header)
@@ -161,14 +161,14 @@ class AdvancedSetup(Ui_MainWindow):
                             item = QTableWidgetItem(str(target))
                             self.work_table.setItem(i, j, item)
             else:  # 부분 갱신
-                for update in ret['update']:
-                    row, column, text = update
-                    if self.work_table.item(row, column).text() != text:
-                        self.work_table.setItem(row, column, QTableWidgetItem(text))
                 if self.work_header != ret['header']:
                     self.work_table.setColumnCount(len(ret['header']))
                     self.work_table.setHorizontalHeaderLabels(ret['header'])
                     self.work_header = ret['header']
+                for update in ret['update']:
+                    row, column, text = update
+                    if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
+                        self.work_table.setItem(row, column, QTableWidgetItem(text))
     # ********************** 화면 전환 함수 ********************** #
 
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
