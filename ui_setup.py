@@ -244,7 +244,7 @@ class AdvancedSetup(Ui_MainWindow):
             self.load_video_event(location, video_path, self.work_video['url'].split('/')[-2])
         else:
             self.playlist.clear()
-            self.playlist.addMedia(QUrl(FOLDER + '/' + filename))
+            self.playlist.addMedia(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
             self.player.setPlaylist(self.playlist)
 
     def load_video_event(self, location, video_path, fileid):
