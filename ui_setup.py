@@ -1,3 +1,5 @@
+import time
+
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -19,16 +21,11 @@ class AdvancedSetup(Ui_MainWindow):
         # ui 불러오기
         self.main = main
         self.setupUi(self.main)
-        # 프로젝트 목록
-        self.project_list = list()
 
         # ui 설정
         font = QFont()
         font.setPointSize(20)
         self.project_table.setFont(font)
-        # self.project_table.setColumnCount(2)
-        # self.project_table.setHorizontalHeaderLabels(['프로젝트 이름', '동영상 이름'])
-        # self.project_table.resizeColumnsToContents()
 
         # 색상 설정
         self.project_table.setStyleSheet("border-radius: 10px;"
@@ -46,6 +43,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.video_widget = QVideoWidget(self.videowidget)
         self.video_widget.resize(QSize(480, 360))
         self.player.setVideoOutput(self.video_widget)
+
         # 자막
         self.subtitle = QLabel(self.videowidget)
         x, y = self.video_widget.width(), int(self.video_widget.height()/8)
@@ -55,6 +53,16 @@ class AdvancedSetup(Ui_MainWindow):
         self.subtitle.setAlignment(Qt.AlignCenter)
         self.subtitle.setText("test1\ntest2\ntest3")
 
+        # 프로젝트 목록
+        self.project_list = list()
+
+        # 작업 영상 url, name
+        self.work_video = dict()
+        self.thread_video_download = None
+
+        # 초기화면 설정
+        self.default_view()
+
         # 클라이언트 초기화
         self.client = {
             "id": "",
@@ -62,14 +70,6 @@ class AdvancedSetup(Ui_MainWindow):
             "GET": None,     # None: project,  project id: work
             "POST": dict(),
         }
-
-        # 작업 영상 url, name
-        self.work_video = dict()
-        self.work_data = pd.DataFrame()
-        self.thread_video_download = None
-
-        # 초기화면 설정
-        self.default_view()
 
         # ********************** 동영상 플레이어 조작 이벤트 ********************** #
         self.play.clicked.connect(self.play_clicked_event)
@@ -110,13 +110,7 @@ class AdvancedSetup(Ui_MainWindow):
 
     # ********************** 화면 전환 함수 ********************** #
     def default_view(self):
-        # 작업 화면 초기화 #
-        for i in range(self.work_table.rowCount()):
-            work_id = QTableWidgetItem(str(i + 1))
-            work_id.setFlags(work_id.flags() ^ Qt.ItemIsSelectable ^ Qt.ItemIsEditable)
-            work_id.setTextAlignment(Qt.AlignCenter)
-            self.work_table.setItem(i, 0, work_id)
-        for i in range(3):
+        for i in range(2):
             self.work_table.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
         # 작업 화면 초기화 #
         self.project_input.setVisible(False)
@@ -147,26 +141,29 @@ class AdvancedSetup(Ui_MainWindow):
                 self.project_table.addItem(item)
         # 자막 화면 갱신
         else:
-            new_video = ret['metadata']
-            new_work_data = read_json(ret['work'])
-            new_header = new_work_data.columns.tolist()
-            # 프로젝트 확인
-            if self.work_video != new_video:
+            if 'update' not in ret:  # 전체 갱신
+                new_video = ret['metadata']
+                new_work_data = read_json(ret['work'])
+                new_header = new_work_data.columns.tolist()
+                # 프로젝트 확인
                 self.work_video = new_video
                 self.set_video()
-            # header 갱신
-            if self.work_table.horizontalHeader() != new_header:
-                self.work_table.setColumnCount(len(new_header))
-                self.work_table.setHorizontalHeaderLabels(new_header)
-            # 작업 갱신
-            if not self.work_data.equals(new_work_data):
+                # header 갱신
+                if self.work_table.horizontalHeader() != new_header:
+                    self.work_table.setColumnCount(len(new_header))
+                    self.work_table.setHorizontalHeaderLabels(new_header)
+                # 작업 갱신
                 for i in range(len(new_work_data.index)):
-                    for j in range(1, len(new_work_data.columns)):
-                        current, target = self.work_table.item(i, j), new_work_data.iloc[i, j]
-                        if not current or current.text() != target:
+                    for j in range(len(new_work_data.columns)):
+                        target = new_work_data.iloc[i, j]
+                        if self.work_table.item(i, j) != target:
                             item = QTableWidgetItem(str(target))
                             self.work_table.setItem(i, j, item)
-                self.work_data = new_work_data
+            else:
+                for update in ret['update']:
+                    row, column, text = update
+                    if self.work_table.item(row, column).text() != text:
+                        self.work_table.setItem(row, column, QTableWidgetItem(text))
     # ********************** 화면 전환 함수 ********************** #
 
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
@@ -260,8 +257,8 @@ class AdvancedSetup(Ui_MainWindow):
     def create_accept(self):
         self.project_input.setVisible(False)
         project = list(filter(lambda x: type(x) == QLineEdit, self.project_input.children()))
-        pid, fid = map(lambda x: x.text(), project)
-        self.client['POST'][1] = [pid, fid, gdown.getfilename(fid)]
+        project_name, file_url = map(lambda x: x.text(), project)
+        self.client['POST'][1] = [project_name, file_url, gdown.getfilename(file_url)]
         clear = list(map(lambda x: x.clear(), project))
         # TODO // URL 검증 및 에러 체크 구문
 
@@ -276,19 +273,20 @@ class AdvancedSetup(Ui_MainWindow):
     # ********************** 작업 이벤트 함수 ********************** #
     def back_to_project(self):
         self.client['GET'] = None
+        self.work_table.clear()
         self.project_view()
 
     def add_language(self):
         # TODO 언어 선택
-        self.client['POST'][3] = [self.work_video['key'], '영어']
-        if '영어' == self.work_table.horizontalHeaderItem(4).text():
-            self.client['POST'][3] = [self.work_video['key'], '영어2']
+        self.client['POST'][3] = [self.client['GET'], '영어']
+        if '영어' == self.work_table.horizontalHeaderItem(3).text():
+            self.client['POST'][3] = [self.client['GET'], '영어2']
         # TODO 언어 선택
 
     def update_work(self):
         cell = self.work_table.currentItem()
         if cell:
-            self.client['POST'][4] = (self.work_video['key'], cell.row(), cell.column(), cell.text())
+            self.client['POST'][4] = (self.client['GET'], cell.row(), cell.column(), cell.text())
     # ********************** 작업 이벤트 함수 ********************** #
 
 

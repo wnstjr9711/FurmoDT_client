@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationxEyOSU.ui'
+## Form generated from reading UI file 'applicationYDidFP.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1294, 768)
+        MainWindow.resize(1303, 768)
         icon = QIcon()
         icon.addFile(u"files/furmodt-favicon.ico", QSize(), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -210,8 +210,8 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
 
         self.work_table = QTableWidget(self.work_widget)
-        if (self.work_table.columnCount() < 4):
-            self.work_table.setColumnCount(4)
+        if (self.work_table.columnCount() < 3):
+            self.work_table.setColumnCount(3)
         if (self.work_table.rowCount() < 9999):
             self.work_table.setRowCount(9999)
         self.work_table.setObjectName(u"work_table")
@@ -219,12 +219,12 @@ class Ui_MainWindow(object):
         self.work_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.work_table.setAutoScroll(True)
         self.work_table.setRowCount(9999)
-        self.work_table.setColumnCount(4)
+        self.work_table.setColumnCount(3)
         self.work_table.horizontalHeader().setVisible(True)
         self.work_table.horizontalHeader().setCascadingSectionResizes(False)
         self.work_table.horizontalHeader().setProperty("showSortIndicator", False)
         self.work_table.horizontalHeader().setStretchLastSection(False)
-        self.work_table.verticalHeader().setVisible(False)
+        self.work_table.verticalHeader().setVisible(True)
         self.work_table.verticalHeader().setCascadingSectionResizes(False)
         self.work_table.verticalHeader().setProperty("showSortIndicator", False)
 
