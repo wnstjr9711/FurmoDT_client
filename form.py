@@ -12,7 +12,8 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, e):
-        e.accept()
+        if self.main.work_widget.isVisible():
+            e.accept()
 
     def dragMoveEvent(self, e):
         target = self.main.work_widget
