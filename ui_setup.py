@@ -1,5 +1,6 @@
 import time
 
+import pysrt
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -283,15 +284,26 @@ class AdvancedSetup(Ui_MainWindow):
 
     def add_language(self):
         # TODO 언어 선택
-        self.client['POST'][3] = [self.client['GET'], '영어']
+        self.client['POST'][3] = ['영어']
         if '영어' == self.work_table.horizontalHeaderItem(3).text():
-            self.client['POST'][3] = [self.client['GET'], '영어2']
+            self.client['POST'][3] = ['영어2']
         # TODO 언어 선택
 
     def update_work(self):
         cell = self.work_table.currentItem()
         if cell:
-            self.client['POST'][4] = (self.client['GET'], cell.row(), cell.column(), cell.text())
+            self.client['POST'][4] = [(cell.row(), cell.column(), cell.text())]
+
+    def add_subtitle(self, url):
+        self.work_table.clear()
+        self.work_table.setHorizontalHeaderLabels(self.work_header)
+        subs = pysrt.open(url)
+        srt = list()
+        for i in subs:
+            srt.append((i.index - 1, 0, str(i.start).replace(',', '.')))
+            srt.append((i.index - 1, 1, str(i.end).replace(',', '.')))
+            srt.append((i.index - 1, 2, str(i.text)))
+        self.client['POST'][4] = srt
     # ********************** 작업 이벤트 함수 ********************** #
 
 
