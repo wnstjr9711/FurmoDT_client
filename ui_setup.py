@@ -1,6 +1,3 @@
-import time
-
-import pysrt
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -8,9 +5,9 @@ from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView
 from ui_main import Ui_MainWindow
 import datetime
-import os
+import pysrt
 import gdown
-import pandas as pd
+import os
 from pandas import read_json
 
 FOLDER = 'video_download'
@@ -62,6 +59,8 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_header = list()
         self.thread_video_download = None
         self.change = None  # update 주체가 다를 때 변동사항 재전송 방지
+        self.work_table.setStyleSheet('QTableWidget QTableCornerButton::section'
+                                      '{border-image: url(files/furmodt-favicon.ico);}')
 
         # 초기화면 설정
         self.default_view()
@@ -74,7 +73,7 @@ class AdvancedSetup(Ui_MainWindow):
             "POST": dict(),
         }
 
-        # ********************** 동영상 플레이어 조작 이벤트 ********************** #
+        # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
         self.play.clicked.connect(self.play_clicked_event)
         self.prev.clicked.connect(self.pass_prev_video)
         self.next.clicked.connect(self.pass_next_video)
@@ -84,22 +83,22 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.sliderReleased.connect(self.set_position)
         self.player.durationChanged.connect(self.video_duration_event)
         self.player.positionChanged.connect(self.video_position_event)
-        # ********************** 동영상 플레이어 조작 이벤트 ********************** #
+        # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
 
-        # ********************** 프로젝트 조작 이벤트 ********************** #
+        # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
         # 생성
         self.button_create_project.clicked.connect(self.create_project)
         self.buttonbox_create.accepted.connect(self.create_accept)
         self.buttonbox_create.rejected.connect(self.create_reject)
         # 입장
         self.project_table.itemDoubleClicked.connect(self.join_project)
-        # ********************** 프로젝트 조작 이벤트 ********************** #
+        # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
 
-        # ********************** 작업 조작 이벤트 ********************** #
+        # ******************************************** 작업 조작 이벤트 ******************************************** #
         self.quit_work.clicked.connect(self.back_to_project)
         self.add_work.clicked.connect(self.add_language)
         self.work_table.itemChanged.connect(self.update_work)
-        # ********************** 작업 조작 이벤트 ********************** #
+        # ******************************************** 작업 조작 이벤트 ******************************************** #
 
     # post 메시지 초기화
     def setdefault_client(self):
@@ -111,7 +110,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.setValue(self.player.position())
         # TODO 자막 갱신
 
-    # ********************** 화면 전환 함수 ********************** #
+    # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
         for i in range(2):
             self.work_table.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
@@ -159,9 +158,10 @@ class AdvancedSetup(Ui_MainWindow):
                 for i in range(len(new_work_data.index)):
                     for j in range(len(new_work_data.columns)):
                         target = new_work_data.iloc[i, j]
-                        if self.work_table.item(i, j) != target:
+                        if bool(target):
                             item = QTableWidgetItem(str(target))
                             self.work_table.setItem(i, j, item)
+                            self.change = (i, j, item.text())
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
                     self.work_header = ret['header']
@@ -172,9 +172,9 @@ class AdvancedSetup(Ui_MainWindow):
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
                         self.work_table.setItem(row, column, QTableWidgetItem(text))
                         self.change = update
-    # ********************** 화면 전환 함수 ********************** #
+    # ******************************************** 화면 전환 함수 ******************************************** #
 
-    # ********************** 동영상 플레이 이벤트 함수 ********************** #
+    # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
     def play_video(self):
         self.play.setText('❚❚')
         self.player.play()
@@ -256,9 +256,9 @@ class AdvancedSetup(Ui_MainWindow):
         self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
         self.thread_video_download.start()
 
-    # ********************** 동영상 플레이 이벤트 함수 ********************** #
+    # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
 
-    # ********************** 프로젝트 이벤트 함수 ********************** #
+    # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
     def create_project(self):
         self.project_input.setVisible(True)
 
@@ -276,9 +276,9 @@ class AdvancedSetup(Ui_MainWindow):
     def join_project(self):
         self.client['GET'] = self.project_table.currentItem().text()
         self.work_view()
-    # ********************** 프로젝트 이벤트 함수 ********************** #
+    # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
 
-    # ********************** 작업 이벤트 함수 ********************** #
+    # ******************************************** 작업 이벤트 함수 ******************************************** #
     def back_to_project(self):
         self.client['GET'] = None
         self.work_table.clear()
@@ -311,10 +311,10 @@ class AdvancedSetup(Ui_MainWindow):
             srt.append((i.index - 1, 1, str(i.end).replace(',', '.')))
             srt.append((i.index - 1, 2, str(i.text)))
         self.client['POST'][4] = srt
-    # ********************** 작업 이벤트 함수 ********************** #
+    # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
-# ********************** 쓰레드 작업 ********************** #
+# ******************************************** 쓰레드 작업 ******************************************** #
 class DownLoadThread(QThread):
     def __init__(self, main, download_link, video_path):
         super(DownLoadThread, self).__init__()
@@ -330,4 +330,4 @@ class DownLoadThread(QThread):
     def run(self):
         gdown.download(self.download_link, self.video_path, None)  #, self.bar)
         self.main.set_video()
-# ********************** 쓰레드 작업 ********************** #
+# ******************************************** 쓰레드 작업 ******************************************** #
