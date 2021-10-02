@@ -160,8 +160,8 @@ class AdvancedSetup(Ui_MainWindow):
                         target = new_work_data.iloc[i, j]
                         if bool(target):
                             item = QTableWidgetItem(str(target))
-                            self.work_table.setItem(i, j, item)
                             self.change = (i, j, item.text())
+                            self.work_table.setItem(i, j, item)
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
                     self.work_header = ret['header']
@@ -170,8 +170,8 @@ class AdvancedSetup(Ui_MainWindow):
                 for update in ret['update']:
                     row, column, text = update
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
-                        self.work_table.setItem(row, column, QTableWidgetItem(text))
                         self.change = update
+                        self.work_table.setItem(row, column, QTableWidgetItem(text))
     # ******************************************** 화면 전환 함수 ******************************************** #
 
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
@@ -296,14 +296,19 @@ class AdvancedSetup(Ui_MainWindow):
 
     def update_work(self):
         cell = self.work_table.currentItem()
+        cur_row = -1
+        if self.change:
+            cur_row = max(cur_row, self.change[0])
         if cell:
             cell_data = (cell.row(), cell.column(), cell.text())
             if cell_data != self.change:
                 self.client['POST'][4] = [cell_data]
+                cur_row = max(cur_row, cell.row())
+                self.change = None
+        if cur_row + 50 >= self.work_table.rowCount():
+            self.work_table.setRowCount(self.work_table.rowCount() + 100)
 
     def add_subtitle(self, url):
-        self.work_table.clear()
-        self.work_table.setHorizontalHeaderLabels(self.work_header)
         subs = pysrt.open(url)
         srt = list()
         for i in subs:
