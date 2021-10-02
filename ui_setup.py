@@ -61,6 +61,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_video = dict()
         self.work_header = list()
         self.thread_video_download = None
+        self.change = None  # update 주체가 다를 때 변동사항 재전송 방지
 
         # 초기화면 설정
         self.default_view()
@@ -170,6 +171,7 @@ class AdvancedSetup(Ui_MainWindow):
                     row, column, text = update
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
                         self.work_table.setItem(row, column, QTableWidgetItem(text))
+                        self.change = update
     # ********************** 화면 전환 함수 ********************** #
 
     # ********************** 동영상 플레이 이벤트 함수 ********************** #
@@ -295,7 +297,9 @@ class AdvancedSetup(Ui_MainWindow):
     def update_work(self):
         cell = self.work_table.currentItem()
         if cell:
-            self.client['POST'][4] = [(cell.row(), cell.column(), cell.text())]
+            cell_data = (cell.row(), cell.column(), cell.text())
+            if cell_data != self.change:
+                self.client['POST'][4] = [cell_data]
 
     def add_subtitle(self, url):
         self.work_table.clear()
