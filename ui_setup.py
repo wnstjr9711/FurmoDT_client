@@ -163,9 +163,9 @@ class AdvancedSetup(Ui_MainWindow):
                             self.work_table.setItem(i, j, item)
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
-                    self.work_table.setColumnCount(len(ret['header']))
-                    self.work_table.setHorizontalHeaderLabels(ret['header'])
                     self.work_header = ret['header']
+                    self.work_table.setColumnCount(len(self.work_header))
+                    self.work_table.setHorizontalHeaderLabels(self.work_header)
                 for update in ret['update']:
                     row, column, text = update
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
@@ -284,9 +284,12 @@ class AdvancedSetup(Ui_MainWindow):
 
     def add_language(self):
         # TODO 언어 선택
-        self.client['POST'][3] = ['영어']
-        if '영어' == self.work_table.horizontalHeaderItem(3).text():
-            self.client['POST'][3] = ['영어2']
+        msg, num = '영어', 1
+        if msg in self.work_header:
+            while '{} ({})'.format(msg, num) in self.work_header:
+                num += 1
+            msg = '{} ({})'.format(msg, num)
+        self.client['POST'][3] = [msg]
         # TODO 언어 선택
 
     def update_work(self):
