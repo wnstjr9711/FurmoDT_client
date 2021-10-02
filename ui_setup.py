@@ -28,6 +28,8 @@ class AdvancedSetup(Ui_MainWindow):
         # 색상 설정
         self.project_table.setStyleSheet("border-radius: 10px;"
                                          "background-color: rgb(255, 255, 255);")
+        self.work_table.setStyleSheet('QTableWidget QTableCornerButton::section'
+                                      '{border-image: url(files/furmodt-favicon.ico);}')
 
         # 타이머
         self.timer = QTimer()
@@ -49,7 +51,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.subtitle.setStyleSheet("background-color: black;"
                                     "color: white;")
         self.subtitle.setAlignment(Qt.AlignCenter)
-        self.subtitle.setText("test1\ntest2\ntest3")
 
         # 프로젝트 목록
         self.project_list = list()
@@ -58,9 +59,8 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_video = dict()
         self.work_header = list()
         self.thread_video_download = None
-        self.change = None  # update 주체가 다를 때 변동사항 재전송 방지
-        self.work_table.setStyleSheet('QTableWidget QTableCornerButton::section'
-                                      '{border-image: url(files/furmodt-favicon.ico);}')
+        self.work_who = None  # update 주체가 다를 때 변동사항 재전송 방지
+        # self.time_code = list() # 자막 정보
 
         # 초기화면 설정
         self.default_view()
@@ -109,6 +109,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.set_playtime(self.player.position())
         self.videoSlider.setValue(self.player.position())
         # TODO 자막 갱신
+        # self.subtitle.setText()
 
     # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
@@ -160,7 +161,7 @@ class AdvancedSetup(Ui_MainWindow):
                         target = new_work_data.iloc[i, j]
                         if bool(target):
                             item = QTableWidgetItem(str(target))
-                            self.change = (i, j, item.text())
+                            self.work_who = (i, j, item.text())
                             self.work_table.setItem(i, j, item)
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
@@ -170,8 +171,9 @@ class AdvancedSetup(Ui_MainWindow):
                 for update in ret['update']:
                     row, column, text = update
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
-                        self.change = update
+                        self.work_who = update
                         self.work_table.setItem(row, column, QTableWidgetItem(text))
+
     # ******************************************** 화면 전환 함수 ******************************************** #
 
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
@@ -238,6 +240,7 @@ class AdvancedSetup(Ui_MainWindow):
     def set_position(self):
         self.player.setPosition(self.videoSlider.value())
         self.set_playtime(self.videoSlider.value())
+        ####### TODO 자막 위치 찾기
 
     def set_video(self):
         filename = self.work_video['video']
@@ -297,14 +300,14 @@ class AdvancedSetup(Ui_MainWindow):
     def update_work(self):
         cell = self.work_table.currentItem()
         cur_row = -1
-        if self.change:
-            cur_row = max(cur_row, self.change[0])
+        if self.work_who:
+            cur_row = max(cur_row, self.work_who[0])
         if cell:
             cell_data = (cell.row(), cell.column(), cell.text())
-            if cell_data != self.change:
+            if cell_data != self.work_who:
                 self.client['POST'][4] = [cell_data]
                 cur_row = max(cur_row, cell.row())
-                self.change = None
+                self.work_who = None
         if cur_row + 50 >= self.work_table.rowCount():
             self.work_table.setRowCount(self.work_table.rowCount() + 100)
 
