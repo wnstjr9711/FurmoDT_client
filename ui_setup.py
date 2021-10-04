@@ -53,6 +53,7 @@ class AdvancedSetup(Ui_MainWindow):
                                     "color: white;")
         self.subtitle.setAlignment(Qt.AlignCenter)
 
+        self.subtitle_tc = list()
         # 프로젝트 목록
         self.project_list = list()
 
