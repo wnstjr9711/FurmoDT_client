@@ -4,11 +4,12 @@ from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView
 from ui_main import Ui_MainWindow
+from pandas import read_json
 import datetime
+import bisect
 import pysrt
 import gdown
 import os
-from pandas import read_json
 
 FOLDER = 'video_download'
 
@@ -60,7 +61,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_header = list()
         self.thread_video_download = None
         self.work_who = None  # update 주체가 다를 때 변동사항 재전송 방지
-        # self.time_code = list() # 자막 정보
 
         # 초기화면 설정
         self.default_view()
@@ -156,13 +156,13 @@ class AdvancedSetup(Ui_MainWindow):
                 self.work_table.setColumnCount(len(new_header))
                 self.work_table.setHorizontalHeaderLabels(new_header)
                 # 작업 갱신
-                for i in range(len(new_work_data.index)):
-                    for j in range(len(new_work_data.columns)):
-                        target = new_work_data.iloc[i, j]
-                        if bool(target):
+                for row in range(len(new_work_data.index)):
+                    for column in range(len(new_work_data.columns)):
+                        target = new_work_data.iloc[row, column]
+                        if target:
                             item = QTableWidgetItem(str(target))
-                            self.work_who = (i, j, item.text())
-                            self.work_table.setItem(i, j, item)
+                            self.work_who = (row, column, item.text())
+                            self.work_table.setItem(row, column, item)
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
                     self.work_header = ret['header']
@@ -173,7 +173,6 @@ class AdvancedSetup(Ui_MainWindow):
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
                         self.work_who = update
                         self.work_table.setItem(row, column, QTableWidgetItem(text))
-
     # ******************************************** 화면 전환 함수 ******************************************** #
 
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
@@ -286,6 +285,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.client['GET'] = None
         self.work_table.clear()
         self.work_table.setRowCount(200)
+        self.subtitle_tc.clear()
         self.project_view()
 
     def add_language(self):
@@ -299,18 +299,25 @@ class AdvancedSetup(Ui_MainWindow):
         # TODO 언어 선택
 
     def update_work(self):
-        cell = self.work_table.currentItem()
-        cur_row = -1
         if self.work_who:
-            cur_row = max(cur_row, self.work_who[0])
-        if cell:
+            row_position = self.work_who[0]
+            self.work_who = None
+        else:
+            cell = self.work_table.currentItem()
             cell_data = (cell.row(), cell.column(), cell.text())
-            if cell_data != self.work_who:
-                self.client['POST'][4] = [cell_data]
-                cur_row = max(cur_row, cell.row())
-                self.work_who = None
-        if cur_row + 50 >= self.work_table.rowCount():
+            self.client['POST'][4] = [cell_data]
+            row_position = cell.row()
+        if row_position + 50 >= self.work_table.rowCount():  # QTableWidget 행 추가
             self.work_table.setRowCount(self.work_table.rowCount() + 100)
+        # TC Validation: for subtitle
+        index = bisect.bisect_left(self.subtitle_tc, row_position)
+        if False not in map(lambda x: bool(x.text()) if x else False, (self.work_table.item(row_position, i) for i in (0, 1))):
+            if index == len(self.subtitle_tc) or self.subtitle_tc[index] != row_position:
+                self.subtitle_tc.insert(index, row_position)
+        else:
+            if index < len(self.subtitle_tc) and self.subtitle_tc[index] == row_position:
+                self.subtitle_tc.pop(index)
+        # TODO TimeCode validation check: IN OUT complex
 
     def add_subtitle(self, url):
         subs = pysrt.open(url)
