@@ -9,6 +9,7 @@ import datetime
 import bisect
 import pysrt
 import gdown
+import sys
 import os
 
 FOLDER = 'video_download'
@@ -55,7 +56,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         self.subtitle_paired = list()
         self.subtitle_index = 0
-        self.subtitle_tc = [None, None]
+        self.subtitle_tc = [sys.maxsize, sys.maxsize]
 
         # 프로젝트 목록
         self.project_list = list()
@@ -103,6 +104,16 @@ class AdvancedSetup(Ui_MainWindow):
         self.add_work.clicked.connect(self.add_language)
         self.work_table.itemChanged.connect(self.update_work)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
+
+    @staticmethod
+    def milli_to_time(milli):
+        ms = milli % 1000
+        s = milli // 1000
+        h = s // 3600
+        s %= 3600
+        m = s // 60
+        s %= 60
+        return '{:02}:{:02}:{:02}.{:03}'.format(h, m, s, ms)
 
     @staticmethod
     def time_to_milli(time):
@@ -203,8 +214,8 @@ class AdvancedSetup(Ui_MainWindow):
 
     def pause_video(self):
         self.play.setText('▶')
-        self.player.pause()
         self.timer.stop()
+        self.player.pause()
         self.play.setShortcut(u"Space")
 
     def pass_prev_video(self):
@@ -258,7 +269,10 @@ class AdvancedSetup(Ui_MainWindow):
     def set_position(self):
         self.player.setPosition(self.videoSlider.value())
         self.set_playtime(self.videoSlider.value())
-        ####### TODO 자막 위치 찾기
+        # 자막 위치 찾기
+        self.subtitle.setText('')
+        time_codes = [self.work_table.item(i, 0).text() for i in self.subtitle_paired]
+        self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
 
     def set_video(self):
         filename = self.work_video['video']
@@ -304,7 +318,11 @@ class AdvancedSetup(Ui_MainWindow):
         self.client['GET'] = None
         self.work_table.clear()
         self.work_table.setRowCount(200)
+        self.timer.stop()
+        self.subtitle.clear()
         self.subtitle_paired.clear()
+        self.subtitle_index = 0
+        self.subtitle_tc = [sys.maxsize, sys.maxsize]
         self.project_view()
 
     def add_language(self):
@@ -333,9 +351,13 @@ class AdvancedSetup(Ui_MainWindow):
         if False not in map(lambda x: bool(x.text()) if x else False, (self.work_table.item(row_position, i) for i in (0, 1))):
             if index == len(self.subtitle_paired) or self.subtitle_paired[index] != row_position:
                 self.subtitle_paired.insert(index, row_position)
+                if index <= self.subtitle_index:
+                    self.subtitle_index += 1
         else:
             if index < len(self.subtitle_paired) and self.subtitle_paired[index] == row_position:
                 self.subtitle_paired.pop(index)
+                if index < self.subtitle_index:
+                    self.subtitle_index -= 1
         # TODO TimeCode validation check: IN OUT complex
 
     def add_subtitle(self, url):
