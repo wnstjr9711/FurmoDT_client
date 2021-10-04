@@ -54,6 +54,10 @@ class AdvancedSetup(Ui_MainWindow):
         self.subtitle.setAlignment(Qt.AlignCenter)
 
         self.subtitle_tc = list()
+        self.subtitle_index = 0
+        self.subtitle_in = None
+        self.subtitle_out = None
+
         # 프로젝트 목록
         self.project_list = list()
 
@@ -101,6 +105,11 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_table.itemChanged.connect(self.update_work)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
 
+    @staticmethod
+    def time_to_milli(time):
+        h, m, s = time.split(':')
+        return int(h) * 60 * 60 * 1000 + int(m) * 60 * 1000 + int(float(s) * 1000)
+
     # post 메시지 초기화
     def setdefault_client(self):
         self.client['POST'] = {}
@@ -109,8 +118,13 @@ class AdvancedSetup(Ui_MainWindow):
     def timeout(self):
         self.set_playtime(self.player.position())
         self.videoSlider.setValue(self.player.position())
-        # TODO 자막 갱신
-        # self.subtitle.setText()
+        self.subtitle_in, self.subtitle_out = map(lambda x: self.time_to_milli(x), (self.work_table.item(self.subtitle_tc[self.subtitle_index], i).text() for i in [0, 1]))
+        if self.player.position() >= self.subtitle_out:
+            self.subtitle.setText("")
+            self.subtitle_index += 1
+            self.subtitle_in, self.subtitle_out = (self.work_table.item(self.subtitle_tc[self.subtitle_index], i) for i in [0, 1])
+        elif self.player.position() >= self.subtitle_in:
+            self.subtitle.setText(self.work_table.item(self.subtitle_tc[self.subtitle_index], 2).text())  # 2 = 테스트용 첫번째 언어
 
     # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
