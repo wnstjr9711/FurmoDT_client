@@ -53,10 +53,9 @@ class AdvancedSetup(Ui_MainWindow):
                                     "color: white;")
         self.subtitle.setAlignment(Qt.AlignCenter)
 
-        self.subtitle_tc = list()
+        self.subtitle_paired = list()
         self.subtitle_index = 0
-        self.subtitle_in = None
-        self.subtitle_out = None
+        self.subtitle_tc = [None, None]
 
         # 프로젝트 목록
         self.project_list = list()
@@ -118,13 +117,18 @@ class AdvancedSetup(Ui_MainWindow):
     def timeout(self):
         self.set_playtime(self.player.position())
         self.videoSlider.setValue(self.player.position())
-        self.subtitle_in, self.subtitle_out = map(lambda x: self.time_to_milli(x), (self.work_table.item(self.subtitle_tc[self.subtitle_index], i).text() for i in [0, 1]))
-        if self.player.position() >= self.subtitle_out:
-            self.subtitle.setText("")
+        if self.subtitle_index < len(self.subtitle_paired):
+            in_out = list(map(lambda x: self.time_to_milli(x), (self.work_table.item(self.subtitle_paired[self.subtitle_index], i).text() for i in (0, 1))))
+            if self.subtitle_tc != in_out:
+                self.subtitle_tc = in_out
+        if self.player.position() >= self.subtitle_tc[1]:
+            if self.subtitle.text() != '':
+                self.subtitle.setText('')
             self.subtitle_index += 1
-            self.subtitle_in, self.subtitle_out = (self.work_table.item(self.subtitle_tc[self.subtitle_index], i) for i in [0, 1])
-        elif self.player.position() >= self.subtitle_in:
-            self.subtitle.setText(self.work_table.item(self.subtitle_tc[self.subtitle_index], 2).text())  # 2 = 테스트용 첫번째 언어
+        elif self.player.position() >= self.subtitle_tc[0]:
+            text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
+            if self.subtitle.text() != text:
+                self.subtitle.setText(text)  # 2 = 테스트용 첫번째 언어
 
     # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
@@ -300,7 +304,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.client['GET'] = None
         self.work_table.clear()
         self.work_table.setRowCount(200)
-        self.subtitle_tc.clear()
+        self.subtitle_paired.clear()
         self.project_view()
 
     def add_language(self):
@@ -325,13 +329,13 @@ class AdvancedSetup(Ui_MainWindow):
         if row_position + 50 >= self.work_table.rowCount():  # QTableWidget 행 추가
             self.work_table.setRowCount(self.work_table.rowCount() + 100)
         # TC Validation: for subtitle
-        index = bisect.bisect_left(self.subtitle_tc, row_position)
+        index = bisect.bisect_left(self.subtitle_paired, row_position)
         if False not in map(lambda x: bool(x.text()) if x else False, (self.work_table.item(row_position, i) for i in (0, 1))):
-            if index == len(self.subtitle_tc) or self.subtitle_tc[index] != row_position:
-                self.subtitle_tc.insert(index, row_position)
+            if index == len(self.subtitle_paired) or self.subtitle_paired[index] != row_position:
+                self.subtitle_paired.insert(index, row_position)
         else:
-            if index < len(self.subtitle_tc) and self.subtitle_tc[index] == row_position:
-                self.subtitle_tc.pop(index)
+            if index < len(self.subtitle_paired) and self.subtitle_paired[index] == row_position:
+                self.subtitle_paired.pop(index)
         # TODO TimeCode validation check: IN OUT complex
 
     def add_subtitle(self, url):
