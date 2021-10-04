@@ -137,14 +137,14 @@ class AdvancedSetup(Ui_MainWindow):
         if type(ret) == list:
             self.work_video = None
             add = set(ret).difference(self.project_list)
-            for i in sorted(add):
-                self.project_list.append(i)
-                item = QListWidgetItem(i)
+            for row in sorted(add):
+                self.project_list.append(row)
+                item = QListWidgetItem(row)
                 item.setTextAlignment(Qt.AlignHCenter)
                 self.project_table.addItem(item)
         # 자막 화면 갱신
         else:
-            if 'update' not in ret:  # 전체 갱신
+            if 'update' not in ret:  # 최초 전체 갱신
                 new_video = ret['metadata']
                 new_work_data = read_json(ret['work'])
                 new_header = new_work_data.columns.tolist()
@@ -285,6 +285,7 @@ class AdvancedSetup(Ui_MainWindow):
     def back_to_project(self):
         self.client['GET'] = None
         self.work_table.clear()
+        self.work_table.setRowCount(200)
         self.project_view()
 
     def add_language(self):
