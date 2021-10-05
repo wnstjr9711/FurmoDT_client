@@ -87,7 +87,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.sliderPressed.connect(self.pause_video)
         self.videoSlider.sliderReleased.connect(self.set_position)
         self.player.durationChanged.connect(self.video_duration_event)
-        self.player.positionChanged.connect(self.video_position_event)
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
 
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
@@ -100,7 +99,7 @@ class AdvancedSetup(Ui_MainWindow):
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
 
         # ******************************************** 작업 조작 이벤트 ******************************************** #
-        self.quit_work.clicked.connect(self.back_to_project)
+        self.quit_work.clicked.connect(self.project_view)
         self.add_work.clicked.connect(self.add_language)
         self.work_table.itemChanged.connect(self.update_work)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
@@ -151,6 +150,14 @@ class AdvancedSetup(Ui_MainWindow):
         self.main.resize(QSize(1080, 720))
 
     def project_view(self):
+        self.client['GET'] = None
+        self.timer.stop()
+        self.work_table.clear()
+        self.work_table.setRowCount(200)
+        self.subtitle.clear()
+        self.subtitle_paired.clear()
+        self.subtitle_index = 0
+        self.subtitle_tc = [sys.maxsize, sys.maxsize]
         self.work_widget.setVisible(False)
         self.project_widget.setVisible(True)
         self.project_input.setVisible(False)
@@ -236,9 +243,9 @@ class AdvancedSetup(Ui_MainWindow):
             self.play_video()
 
     def stop_video(self):
+        self.pause_video()
         self.videoSlider.setValue(0)
         self.set_position()
-        self.pause_video()
 
     def set_playtime(self, start):
         start = str(datetime.timedelta(milliseconds=start)).split(':')
@@ -260,10 +267,10 @@ class AdvancedSetup(Ui_MainWindow):
     def video_duration_event(self):
         self.duration = self.player.duration()
         self.videoSlider.setMaximum(self.duration)
-        self.set_playtime(0)
-
-    def video_position_event(self):
-        if self.player.position() == self.duration:
+        if not self.player.isVideoAvailable():
+            self.stop_video()
+            self.player.setMedia(self.player.media())
+        else:
             self.stop_video()
 
     def set_position(self):
@@ -281,7 +288,6 @@ class AdvancedSetup(Ui_MainWindow):
         if not os.path.exists(video_path):
             self.load_video_event(location, video_path, self.work_video['url'].split('/')[-2])
         else:
-            self.playlist.clear()
             self.playlist.addMedia(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
             self.player.setPlaylist(self.playlist)
 
@@ -290,7 +296,6 @@ class AdvancedSetup(Ui_MainWindow):
             os.mkdir(location)
         self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
         self.thread_video_download.start()
-
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
 
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
@@ -314,17 +319,6 @@ class AdvancedSetup(Ui_MainWindow):
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
 
     # ******************************************** 작업 이벤트 함수 ******************************************** #
-    def back_to_project(self):
-        self.client['GET'] = None
-        self.work_table.clear()
-        self.work_table.setRowCount(200)
-        self.timer.stop()
-        self.subtitle.clear()
-        self.subtitle_paired.clear()
-        self.subtitle_index = 0
-        self.subtitle_tc = [sys.maxsize, sys.maxsize]
-        self.project_view()
-
     def add_language(self):
         # TODO 언어 선택
         msg, num = '영어', 1
@@ -351,7 +345,7 @@ class AdvancedSetup(Ui_MainWindow):
         if False not in map(lambda x: bool(x.text()) if x else False, (self.work_table.item(row_position, i) for i in (0, 1))):
             if index == len(self.subtitle_paired) or self.subtitle_paired[index] != row_position:
                 self.subtitle_paired.insert(index, row_position)
-                if index <= self.subtitle_index:
+                if index < self.subtitle_index:
                     self.subtitle_index += 1
         else:
             if index < len(self.subtitle_paired) and self.subtitle_paired[index] == row_position:
