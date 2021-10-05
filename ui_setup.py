@@ -1,5 +1,5 @@
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
-from PySide2.QtGui import QFont
+from PySide2.QtGui import QFont, QIcon
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView
@@ -13,7 +13,7 @@ import sys
 import os
 
 FOLDER = 'video_download'
-
+LINESEP = '\n'
 
 class AdvancedSetup(Ui_MainWindow):
     def __init__(self, main):
@@ -26,6 +26,7 @@ class AdvancedSetup(Ui_MainWindow):
         font = QFont()
         font.setPointSize(20)
         self.project_table.setFont(font)
+        self.main.setWindowIcon(QIcon('files/furmodt-favicon.ico'))
 
         # 색상 설정
         self.project_table.setStyleSheet("border-radius: 10px;"
@@ -134,11 +135,15 @@ class AdvancedSetup(Ui_MainWindow):
         if self.player.position() >= self.subtitle_tc[1]:
             if self.subtitle.text() != '':
                 self.subtitle.setText('')
+                # for i in range(self.work_table.columnCount()):
+                #     self.work_table.item(self.subtitle_index, i).setBackgroundColor("white")
             self.subtitle_index += 1
         elif self.player.position() >= self.subtitle_tc[0]:
             text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
             if self.subtitle.text() != text:
-                self.subtitle.setText(text)  # 2 = 테스트용 첫번째 언어
+                self.subtitle.setText(text.replace('|', LINESEP))  # 2 = 테스트용 첫번째 언어
+                # for i in range(self.work_table.columnCount()):
+                #     self.work_table.item(self.subtitle_index, i).setBackgroundColor("yellow")
 
     # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
@@ -360,7 +365,7 @@ class AdvancedSetup(Ui_MainWindow):
         for i in subs:
             srt.append((i.index - 1, 0, str(i.start).replace(',', '.')))
             srt.append((i.index - 1, 1, str(i.end).replace(',', '.')))
-            srt.append((i.index - 1, 2, str(i.text)))
+            srt.append((i.index - 1, 2, str(i.text).replace('\n', '|')))
         self.client['POST'][4] = srt
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 

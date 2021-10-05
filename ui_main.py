@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationFssrZw.ui'
+## Form generated from reading UI file 'applicationvFZFjs.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -18,9 +18,6 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1303, 768)
-        icon = QIcon()
-        icon.addFile(u"files/furmodt-favicon.ico", QSize(), QIcon.Normal, QIcon.Off)
-        MainWindow.setWindowIcon(icon)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout_2 = QGridLayout(self.centralwidget)
@@ -91,6 +88,7 @@ class Ui_MainWindow(object):
 
         self.sound = QLabel(self.widget_3)
         self.sound.setObjectName(u"sound")
+        self.sound.setMinimumSize(QSize(18, 0))
 
         self.horizontalLayout_2.addWidget(self.sound)
 
