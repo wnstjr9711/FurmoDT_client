@@ -100,6 +100,7 @@ def download(url, output, bar):
         URL. Google Drive URL is also supported.
     output: str, optional
         Output filename. Default is basename of URL.
+    bar: Qt.roundProgressBar
     Returns
     -------
     output: str
@@ -181,11 +182,11 @@ def download(url, output, bar):
         f = output
 
     try:
-        pbar = tqdm.tqdm(res.content, bar_format='{desc}: {percentage:3.0f}%')
+        pbar = tqdm.tqdm(res.content, bar_format='{desc}: {percentage:3.0f}')
         for chunk in res.iter_content(chunk_size=CHUNK_SIZE):
             f.write(chunk)
             pbar.update(len(chunk))
-            # bar.setText(str(pbar))  # 진행도 표시
+            bar.rpb_setValue(int(str(pbar)))
         pbar.close()
         if tmp_file:
             f.close()
