@@ -3,6 +3,7 @@ from PySide2.QtGui import QFont, QIcon
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView
+from PySide2extn.RoundProgressBar import roundProgressBar
 from ui_main import Ui_MainWindow
 from pandas import read_json
 import datetime
@@ -14,6 +15,7 @@ import os
 
 FOLDER = 'video_download'
 LINESEP = '\n'
+
 
 class AdvancedSetup(Ui_MainWindow):
     def __init__(self, main):
@@ -46,6 +48,14 @@ class AdvancedSetup(Ui_MainWindow):
         self.video_widget = QVideoWidget(self.videowidget)
         self.video_widget.resize(QSize(480, 360))
         self.player.setVideoOutput(self.video_widget)
+
+        self.progressbar = roundProgressBar(self.videowidget)
+        self.progressbar.setGeometry((self.videowidget.width() / 2) - 50,
+                                     (self.videowidget.height() / 2) - 50,
+                                     100, 100)
+        self.progressbar.rpb_setBarStyle('Line')
+        self.progressbar.rpb_setValue(0)
+        self.progressbar.setVisible(False)
 
         # 자막
         self.subtitle = QLabel(self.videowidget)
@@ -169,6 +179,8 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_list.clear()
         self.project_table.clear()
         self.playlist.clear()
+        self.player.setPlaylist(self.playlist)
+        self.progressbar.rpb_setValue(0)
 
     def work_view(self):
         self.project_widget.setVisible(False)
@@ -215,6 +227,9 @@ class AdvancedSetup(Ui_MainWindow):
                     if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
                         self.work_who = update
                         self.work_table.setItem(row, column, QTableWidgetItem(text))
+            if self.progressbar.isVisible():
+                if self.player.isVideoAvailable():
+                    self.progressbar.setVisible(False)
     # ******************************************** 화면 전환 함수 ******************************************** #
 
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
@@ -290,9 +305,12 @@ class AdvancedSetup(Ui_MainWindow):
         filename = self.work_video['video']
         location = os.path.join(os.getcwd(), FOLDER)
         video_path = os.path.join(location, filename)
+        self.progressbar.setVisible(True)
         if not os.path.exists(video_path):
             self.load_video_event(location, video_path, self.work_video['url'].split('/')[-2])
         else:
+            if self.progressbar.rpb_textValue != '100%':
+                self.progressbar.rpb_setValue(100)
             self.playlist.addMedia(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
             self.player.setPlaylist(self.playlist)
 
@@ -377,13 +395,8 @@ class DownLoadThread(QThread):
         self.main = main
         self.download_link = download_link
         self.video_path = video_path
-        # TODO 다운로드 진행률 표시
-        # self.bar = self.main.load_video
-        # gdown 188번째 줄
-        # 295번째 줄
-        # TODO 다운로드 진행률 표시
 
     def run(self):
-        gdown.download(self.download_link, self.video_path, None)  #, self.bar)
+        gdown.download(self.download_link, self.video_path, self.main.progressbar)
         self.main.set_video()
 # ******************************************** 쓰레드 작업 ******************************************** #
