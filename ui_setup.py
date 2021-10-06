@@ -145,15 +145,14 @@ class AdvancedSetup(Ui_MainWindow):
         if self.player.position() >= self.subtitle_tc[1]:
             if self.subtitle.text() != '':
                 self.subtitle.setText('')
-                # for i in range(self.work_table.columnCount()):
-                #     self.work_table.item(self.subtitle_index, i).setBackgroundColor("white")
+                self.work_table.verticalHeaderItem(self.subtitle_index).setBackgroundColor("white")
             self.subtitle_index += 1
         elif self.player.position() >= self.subtitle_tc[0]:
             text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
             if self.subtitle.text() != text:
                 self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
-                # for i in range(self.work_table.columnCount()):
-                #     self.work_table.item(self.subtitle_index, i).setBackgroundColor("yellow")
+                self.work_table.setVerticalHeaderItem(self.subtitle_index, QTableWidgetItem(str(self.subtitle_index + 1)))
+                self.work_table.verticalHeaderItem(self.subtitle_index).setBackgroundColor("yellow")
 
     # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
@@ -299,6 +298,8 @@ class AdvancedSetup(Ui_MainWindow):
         # 자막 위치 찾기
         self.subtitle.setText('')
         time_codes = [self.work_table.item(i, 0).text() for i in self.subtitle_paired]
+        if self.work_table.verticalHeaderItem(self.subtitle_index):
+            self.work_table.verticalHeaderItem(self.subtitle_index).setBackgroundColor("white")
         self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
 
     def set_video(self):
