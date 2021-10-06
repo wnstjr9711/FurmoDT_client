@@ -2,7 +2,7 @@ from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtGui import QFont, QIcon
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
-from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView
+from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox
 from PySide2extn.RoundProgressBar import roundProgressBar
 from ui_main import Ui_MainWindow
 from pandas import read_json
@@ -12,9 +12,9 @@ import pysrt
 import gdown
 import sys
 import os
+import re
 
 FOLDER = 'video_download'
-LINESEP = '\n'
 
 
 class AdvancedSetup(Ui_MainWindow):
@@ -151,7 +151,7 @@ class AdvancedSetup(Ui_MainWindow):
         elif self.player.position() >= self.subtitle_tc[0]:
             text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
             if self.subtitle.text() != text:
-                self.subtitle.setText(text.replace('|', LINESEP))  # 2 = 테스트용 첫번째 언어
+                self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
                 # for i in range(self.work_table.columnCount()):
                 #     self.work_table.item(self.subtitle_index, i).setBackgroundColor("yellow")
 
@@ -329,9 +329,15 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_input.setVisible(False)
         project = list(filter(lambda x: type(x) == QLineEdit, self.project_input.children()))
         project_name, file_url = map(lambda x: x.text(), project)
-        self.client['POST'][1] = [project_name, file_url, gdown.getfilename(file_url)]
-        clear = list(map(lambda x: x.clear(), project))
-        # TODO // URL 검증 및 에러 체크 구문
+        filename = gdown.getfilename(file_url)
+        if filename is not None:
+            self.client['POST'][1] = [project_name, file_url, filename]
+            clear = list(map(lambda x: x.clear(), project))
+        else:
+            err = QMessageBox()
+            err.setText("invalid url!")
+            err.setWindowTitle('error')
+            err.exec_()
 
     def create_reject(self):
         self.project_input.setVisible(False)
@@ -359,11 +365,21 @@ class AdvancedSetup(Ui_MainWindow):
         else:
             cell = self.work_table.currentItem()
             cell_data = (cell.row(), cell.column(), cell.text())
-            self.client['POST'][4] = [cell_data]
-            row_position = cell.row()
+            # TC Validation: format
+            if cell_data[1] in (0, 1):
+                try:
+                    assert cell_data[2] == '' or bool(re.match(r"\d{2}:\d{2}:\d{2}.\d{3}$", cell_data[2]))
+                    self.client['POST'][4] = [cell_data]
+                    row_position = cell.row()
+                except AssertionError:
+                    self.work_table.setItem(cell_data[0], cell_data[1], QTableWidgetItem(0))
+                    row_position = 0
+            else:
+                self.client['POST'][4] = [cell_data]
+                row_position = cell.row()
         if row_position + 50 >= self.work_table.rowCount():  # QTableWidget 행 추가
             self.work_table.setRowCount(self.work_table.rowCount() + 100)
-        # TC Validation: for subtitle
+        # TC Validation: set
         index = bisect.bisect_left(self.subtitle_paired, row_position)
         if False not in map(lambda x: bool(x.text()) if x else False, (self.work_table.item(row_position, i) for i in (0, 1))):
             if index == len(self.subtitle_paired) or self.subtitle_paired[index] != row_position:
@@ -385,6 +401,10 @@ class AdvancedSetup(Ui_MainWindow):
             srt.append((i.index - 1, 1, str(i.end).replace(',', '.')))
             srt.append((i.index - 1, 2, str(i.text).replace('\n', '|')))
         self.client['POST'][4] = srt
+
+    # def delete_language(self):
+    #     self.work_table.removeColumn(3)
+    #     self.client['POST'][123] = remove language
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 

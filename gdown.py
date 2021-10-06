@@ -124,7 +124,6 @@ def download(url, output, bar):
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"  # NOQA
     }
-    a = 0
     while True:
         res = sess.get(url, headers=headers, stream=True)
         # Save cookies
@@ -206,7 +205,10 @@ def download(url, output, bar):
 
 def getfilename(fid):
     # 공유링크로 파일이름 가져오기
-    res = requests.get(fid)
-    soup = BeautifulSoup(res.text, 'html.parser')
-    f_name = soup.find('title').text.split()[0]
-    return f_name
+    try:
+        res = requests.get(fid)
+        soup = BeautifulSoup(res.text, 'html.parser')
+        f_name = soup.find('title').text.split()[0]
+        return f_name
+    except requests.exceptions.RequestException:
+        return None
