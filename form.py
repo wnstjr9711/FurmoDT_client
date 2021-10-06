@@ -1,8 +1,10 @@
 from PySide2.QtWidgets import QApplication, QMainWindow
+from PySide2.QtGui import QIcon
 from ui_setup import AdvancedSetup
-import qasync
 import socket_client
+import qasync
 import sys
+import os
 
 
 class MainWindow(QMainWindow):
@@ -30,6 +32,7 @@ class MainWindow(QMainWindow):
 
 app = QApplication(sys.argv)
 app.setStyle('Fusion')
+app.setWindowIcon(QIcon(os.path.join('files', 'furmodt-favicon.ico')))
 window = MainWindow()
 window.show()
 

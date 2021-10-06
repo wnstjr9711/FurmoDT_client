@@ -1,5 +1,5 @@
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
-from PySide2.QtGui import QFont, QIcon
+from PySide2.QtGui import QFont
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox
@@ -28,7 +28,6 @@ class AdvancedSetup(Ui_MainWindow):
         font = QFont()
         font.setPointSize(20)
         self.project_table.setFont(font)
-        self.main.setWindowIcon(QIcon('files/furmodt-favicon.ico'))
 
         # 색상 설정
         self.project_table.setStyleSheet("border-radius: 10px;"
@@ -98,6 +97,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.sliderPressed.connect(self.pause_video)
         self.videoSlider.sliderReleased.connect(self.set_position)
         self.player.durationChanged.connect(self.video_duration_event)
+        self.player.currentMediaChanged.connect(self.video_reset)
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
 
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
@@ -178,7 +178,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_list.clear()
         self.project_table.clear()
         self.playlist.clear()
-        self.player.setPlaylist(self.playlist)
         self.progressbar.rpb_setValue(0)
 
     def work_view(self):
@@ -286,11 +285,10 @@ class AdvancedSetup(Ui_MainWindow):
     def video_duration_event(self):
         self.duration = self.player.duration()
         self.videoSlider.setMaximum(self.duration)
-        if not self.player.isVideoAvailable():
-            self.stop_video()
-            self.player.setMedia(self.player.media())
-        else:
-            self.stop_video()
+        self.stop_video()
+
+    def video_reset(self):
+        self.player.playlist().setCurrentIndex(0)
 
     def set_position(self):
         self.player.setPosition(self.videoSlider.value())
