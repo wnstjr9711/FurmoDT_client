@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationvFZFjs.ui'
+## Form generated from reading UI file 'applicationMgEWhU.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -262,7 +262,7 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
         self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
-        self.add_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ucd94\uac00\ud558\uae30", None))
+        self.add_work.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \ucd94\uac00\ud558\uae30", None))
         self.load_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ubd88\ub7ec\uc624\uae30", None))
         self.save_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ub0b4\ubcf4\ub0b4\uae30", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc885\ub8cc", None))

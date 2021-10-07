@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox
+from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox
 from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -340,9 +340,7 @@ class AdvancedSetup(Ui_MainWindow):
             clear = list(map(lambda x: x.clear(), project))
         else:
             err = QMessageBox()
-            err.setText("invalid url!")
-            err.setWindowTitle('error')
-            err.exec_()
+            err.information(self.main, 'error', 'invalid url!')
 
     def create_reject(self):
         self.project_input.setVisible(False)
@@ -354,14 +352,20 @@ class AdvancedSetup(Ui_MainWindow):
 
     # ******************************************** 작업 이벤트 함수 ******************************************** #
     def add_language(self):
-        # TODO 언어 선택
-        msg, num = '영어', 1
-        if msg in self.work_header:
-            while '{} ({})'.format(msg, num) in self.work_header:
-                num += 1
-            msg = '{} ({})'.format(msg, num)
-        self.client['POST'][3] = [msg]
-        # TODO 언어 선택
+        select_language = QMessageBox()
+        select_language.setWindowTitle('언어선택')
+        select_language.setStandardButtons(select_language.Yes | select_language.No)
+        combobox = QComboBox(select_language)
+        combobox.setGeometry(50, combobox.y(), combobox.width(), combobox.height())
+        for lang in ['한국어', '영어', '베트남어', '일본어', '중국어']:
+            combobox.addItem(lang)
+        if select_language.exec_() == select_language.Yes:
+            msg, num = combobox.currentText(), 1
+            if msg in self.work_header:
+                while '{} ({})'.format(msg, num) in self.work_header:
+                    num += 1
+                msg = '{} ({})'.format(msg, num)
+            self.client['POST'][3] = [msg]
 
     def update_work(self):
         if self.work_who:
