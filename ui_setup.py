@@ -130,7 +130,7 @@ class AdvancedSetup(Ui_MainWindow):
 
     # post 메시지 초기화
     def setdefault_client(self):
-        self.client['POST'] = {}
+        self.client['POST'].clear()
 
     # 타이머 함수
     def timeout(self):
@@ -142,17 +142,18 @@ class AdvancedSetup(Ui_MainWindow):
             in_out = list(map(lambda x: self.time_to_milli(x), (self.work_table.item(self.subtitle_paired[self.subtitle_index], i).text() for i in (0, 1))))
             if self.subtitle_tc != in_out:
                 self.subtitle_tc = in_out
-        if self.player.position() >= self.subtitle_tc[1]:
-            if self.subtitle.text() != '':
-                self.subtitle.setText('')
-                self.work_table.verticalHeaderItem(self.subtitle_index).setBackgroundColor("white")
-            self.subtitle_index += 1
-        elif self.player.position() >= self.subtitle_tc[0]:
-            text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
-            if self.subtitle.text() != text:
-                self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
-                self.work_table.setVerticalHeaderItem(self.subtitle_index, QTableWidgetItem(str(self.subtitle_index + 1)))
-                self.work_table.verticalHeaderItem(self.subtitle_index).setBackgroundColor("yellow")
+            index = self.subtitle_paired[self.subtitle_index]
+            if self.player.position() >= self.subtitle_tc[1]:
+                if self.subtitle.text() != '':
+                    self.subtitle.setText('')
+                    self.work_table.verticalHeaderItem(index).setBackgroundColor("white")
+                self.subtitle_index += 1
+            elif self.player.position() >= self.subtitle_tc[0]:
+                text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
+                if self.subtitle.text() != text:
+                    self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
+                    self.work_table.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
+                    self.work_table.verticalHeaderItem(index).setBackgroundColor("yellow")
 
     # ******************************************** 화면 전환 함수 ******************************************** #
     def default_view(self):
@@ -260,8 +261,11 @@ class AdvancedSetup(Ui_MainWindow):
         if self.player.isVideoAvailable():
             target = self.player.position()+5000
             self.videoSlider.setValue(target)
-            self.set_position()
-            self.play_video()
+            if self.videoSlider.value() == self.duration:
+                self.stop_video()
+            else:
+                self.set_position()
+                self.play_video()
 
     def stop_video(self):
         self.pause_video()
@@ -296,8 +300,10 @@ class AdvancedSetup(Ui_MainWindow):
         # 자막 위치 찾기
         self.subtitle.setText('')
         time_codes = [self.work_table.item(i, 0).text() for i in self.subtitle_paired]
-        if self.work_table.verticalHeaderItem(self.subtitle_index):
-            self.work_table.verticalHeaderItem(self.subtitle_index).setBackgroundColor("white")
+        try:
+            self.work_table.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor("white")
+        except (IndexError, AttributeError):
+            pass
         self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
 
     def set_video(self):
@@ -387,8 +393,10 @@ class AdvancedSetup(Ui_MainWindow):
                     self.subtitle_index += 1
         else:
             if index < len(self.subtitle_paired) and self.subtitle_paired[index] == row_position:
-                self.subtitle_paired.pop(index)
-                if index < self.subtitle_index:
+                check = self.subtitle_paired.pop(index)
+                if index == self.subtitle_index and self.work_table.verticalHeaderItem(check):
+                    self.work_table.verticalHeaderItem(check).setBackgroundColor("white")
+                elif index < self.subtitle_index:
                     self.subtitle_index -= 1
         # TODO TimeCode validation check: IN OUT complex
 
