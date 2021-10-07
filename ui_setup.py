@@ -1,8 +1,8 @@
-from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
-from PySide2.QtGui import QFont
-from PySide2.QtMultimediaWidgets import QVideoWidget
-from PySide2.QtMultimedia import QMediaPlayer, QMediaPlaylist
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox
+from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
+from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
+from PySide2.QtMultimediaWidgets import QVideoWidget
+from PySide2.QtGui import QFont
 from PySide2extn.RoundProgressBar import roundProgressBar
 from ui_main import Ui_MainWindow
 from pandas import read_json
@@ -43,7 +43,6 @@ class AdvancedSetup(Ui_MainWindow):
         # 동영상 플레이어
         self.duration = 0
         self.player = QMediaPlayer()
-        self.playlist = QMediaPlaylist(self.player)
         self.video_widget = QVideoWidget(self.videowidget)
         self.video_widget.resize(QSize(480, 360))
         self.player.setVideoOutput(self.video_widget)
@@ -97,7 +96,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.sliderPressed.connect(self.pause_video)
         self.videoSlider.sliderReleased.connect(self.set_position)
         self.player.durationChanged.connect(self.video_duration_event)
-        self.player.currentMediaChanged.connect(self.video_reset)
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
 
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
@@ -138,6 +136,8 @@ class AdvancedSetup(Ui_MainWindow):
     def timeout(self):
         self.set_playtime(self.player.position())
         self.videoSlider.setValue(self.player.position())
+        if self.videoSlider.value() == self.duration:
+            self.stop_video()
         if self.subtitle_index < len(self.subtitle_paired):
             in_out = list(map(lambda x: self.time_to_milli(x), (self.work_table.item(self.subtitle_paired[self.subtitle_index], i).text() for i in (0, 1))))
             if self.subtitle_tc != in_out:
@@ -165,7 +165,6 @@ class AdvancedSetup(Ui_MainWindow):
 
     def project_view(self):
         self.client['GET'] = None
-        self.timer.stop()
         self.work_table.clear()
         self.work_table.setRowCount(200)
         self.subtitle.clear()
@@ -177,8 +176,12 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_input.setVisible(False)
         self.project_list.clear()
         self.project_table.clear()
-        self.playlist.clear()
+        self.player.setMedia(QMediaContent())
+        self.duration = 0
+        self.videoSlider.setMaximum(self.duration)
+        self.stop_video()
         self.progressbar.rpb_setValue(0)
+        self.progressbar.setVisible(False)
 
     def work_view(self):
         self.project_widget.setVisible(False)
@@ -287,9 +290,6 @@ class AdvancedSetup(Ui_MainWindow):
         self.videoSlider.setMaximum(self.duration)
         self.stop_video()
 
-    def video_reset(self):
-        self.player.playlist().setCurrentIndex(0)
-
     def set_position(self):
         self.player.setPosition(self.videoSlider.value())
         self.set_playtime(self.videoSlider.value())
@@ -310,8 +310,8 @@ class AdvancedSetup(Ui_MainWindow):
         else:
             if self.progressbar.rpb_textValue != '100%':
                 self.progressbar.rpb_setValue(100)
-            self.playlist.addMedia(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
-            self.player.setPlaylist(self.playlist)
+            media = QMediaContent(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
+            self.player.setMedia(media)
 
     def load_video_event(self, location, video_path, fileid):
         if not os.path.exists(location):
