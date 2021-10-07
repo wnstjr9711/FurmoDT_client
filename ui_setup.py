@@ -110,6 +110,7 @@ class AdvancedSetup(Ui_MainWindow):
         # ******************************************** 작업 조작 이벤트 ******************************************** #
         self.quit_work.clicked.connect(self.project_view)
         self.add_work.clicked.connect(self.add_language)
+        self.save_work.clicked.connect(self.export_work)
         self.work_table.itemChanged.connect(self.update_work)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
 
@@ -412,6 +413,14 @@ class AdvancedSetup(Ui_MainWindow):
             srt.append((i.index - 1, 1, str(i.end).replace(',', '.')))
             srt.append((i.index - 1, 2, str(i.text).replace('\n', '|')))
         self.client['POST'][4] = srt
+
+    def export_work(self):
+        sub = pysrt.SubRipFile()
+        for index in self.subtitle_paired:
+            item = pysrt.SubRipItem(index + 1, self.work_table.item(index, 0).text().replace('.', ','), self.work_table.item(index, 1).text().replace('.', ','),
+                                    self.work_table.item(index, 2).text().replace('|', '\n'))
+            sub.append(item)
+        sub.save(os.path.join(FOLDER, 'sample.srt'))
 
     # def delete_language(self):
     #     self.work_table.removeColumn(3)
