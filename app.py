@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QApplication, QMainWindow
 from PySide2.QtGui import QIcon
-from ui_setup import AdvancedSetup
+from app_setting import AdvancedSetup
 import socket_client
 import qasync
 import sys
@@ -8,9 +8,10 @@ import os
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, client_id):
         super(MainWindow, self).__init__()
         self.main = AdvancedSetup(self)
+        self.main.client['id'] = client_id
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, e):
@@ -33,7 +34,7 @@ class MainWindow(QMainWindow):
 app = QApplication(sys.argv)
 app.setStyle('Fusion')
 app.setWindowIcon(QIcon(os.path.join('files', 'furmodt-favicon.ico')))
-window = MainWindow()
+window = MainWindow('wnstjr')
 window.show()
 
 loop = qasync.QEventLoop(app)
