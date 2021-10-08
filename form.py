@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
             e.ignore()
 
     def dropEvent(self, e):
-        self.main.add_subtitle(e.mimeData().urls()[0].toLocalFile())
+        self.main.event_work_add_subtitle(e.mimeData().urls()[0].toLocalFile())
 
 
 app = QApplication(sys.argv)

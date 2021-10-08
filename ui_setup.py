@@ -27,12 +27,12 @@ class AdvancedSetup(Ui_MainWindow):
         # ui 설정
         font = QFont()
         font.setPointSize(20)
-        self.project_table.setFont(font)
+        self.table_project.setFont(font)
 
         # 색상 설정
-        self.project_table.setStyleSheet("border-radius: 10px;"
+        self.table_project.setStyleSheet("border-radius: 10px;"
                                          "background-color: rgb(255, 255, 255);")
-        self.work_table.setStyleSheet('QTableWidget QTableCornerButton::section'
+        self.table_work.setStyleSheet('QTableWidget QTableCornerButton::section'
                                       '{border-image: url(files/furmodt-favicon.ico);}')
 
         # 타이머
@@ -41,19 +41,19 @@ class AdvancedSetup(Ui_MainWindow):
         self.timer.timeout.connect(self.timeout)
 
         # 동영상 플레이어
-        self.duration = 0
-        self.player = QMediaPlayer()
+        self.video_duration = 0
+        self.video_player = QMediaPlayer()
         self.video_widget = QVideoWidget(self.videowidget)
         self.video_widget.resize(QSize(480, 360))
-        self.player.setVideoOutput(self.video_widget)
+        self.video_player.setVideoOutput(self.video_widget)
 
-        self.progressbar = roundProgressBar(self.videowidget)
-        self.progressbar.setGeometry((self.videowidget.width() / 2) - 50,
-                                     (self.videowidget.height() / 2) - 50,
-                                     100, 100)
-        self.progressbar.rpb_setBarStyle('Line')
-        self.progressbar.rpb_setValue(0)
-        self.progressbar.setVisible(False)
+        self.video_progressbar = roundProgressBar(self.videowidget)
+        self.video_progressbar.setGeometry((self.videowidget.width() / 2) - 50,
+                                           (self.videowidget.height() / 2) - 50,
+                                           100, 100)
+        self.video_progressbar.rpb_setBarStyle('Line')
+        self.video_progressbar.rpb_setValue(0)
+        self.video_progressbar.setVisible(False)
 
         # 자막
         self.subtitle = QLabel(self.videowidget)
@@ -77,7 +77,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.work_who = None  # update 주체가 다를 때 변동사항 재전송 방지
 
         # 초기화면 설정
-        self.default_view()
+        self.view_default()
 
         # 클라이언트 초기화
         self.client = {
@@ -88,34 +88,34 @@ class AdvancedSetup(Ui_MainWindow):
         }
 
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
-        self.play.clicked.connect(self.play_clicked_event)
-        self.prev.clicked.connect(self.pass_prev_video)
-        self.next.clicked.connect(self.pass_next_video)
-        self.stop.clicked.connect(self.stop_video)
-        self.soundSlider.valueChanged.connect(self.sound_slider_event)
-        self.videoSlider.sliderPressed.connect(self.pause_video)
-        self.videoSlider.sliderReleased.connect(self.set_position)
-        self.player.durationChanged.connect(self.video_duration_event)
+        self.button_play.clicked.connect(self.event_video_button_play)
+        self.button_prev.clicked.connect(self.video_pass_prev)
+        self.button_next.clicked.connect(self.video_pass_next)
+        self.button_stop.clicked.connect(self.video_stop)
+        self.soundSlider.valueChanged.connect(self.event_video_sound)
+        self.videoSlider.sliderPressed.connect(self.video_pause)
+        self.videoSlider.sliderReleased.connect(self.event_video_position)
+        self.video_player.durationChanged.connect(self.event_video_duration)
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
 
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
         # 생성
-        self.button_create_project.clicked.connect(self.create_project)
-        self.buttonbox_create.accepted.connect(self.create_accept)
-        self.buttonbox_create.rejected.connect(self.create_reject)
+        self.button_create_project.clicked.connect(self.event_project_input_visible)
+        self.buttonbox_create.accepted.connect(self.event_project_create_accept)
+        self.buttonbox_create.rejected.connect(self.event_project_input_visible)
         # 입장
-        self.project_table.itemDoubleClicked.connect(self.join_project)
+        self.table_project.itemDoubleClicked.connect(self.event_project_join)
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
 
         # ******************************************** 작업 조작 이벤트 ******************************************** #
-        self.quit_work.clicked.connect(self.project_view)
-        self.button_add_language.clicked.connect(self.add_language)
-        self.button_delete_language.clicked.connect(self.delete_language)
-        self.save_work.clicked.connect(self.export_work)
-        self.button_tc_set.clicked.connect(self.event_tc_set)
-        self.button_tc_in.clicked.connect(self.event_tc_in)
-        self.button_tc_out.clicked.connect(self.event_tc_out)
-        self.work_table.itemChanged.connect(self.update_work)
+        self.button_work_quit.clicked.connect(self.view_project)
+        self.button_add_language.clicked.connect(self.event_work_add_language)
+        self.button_delete_language.clicked.connect(self.event_work_delete_language)
+        self.button_work_save.clicked.connect(self.event_work_export)
+        self.button_tc_set.clicked.connect(self.event_work_tc_set)
+        self.button_tc_in.clicked.connect(self.event_work_tc_in)
+        self.button_tc_out.clicked.connect(self.event_work_tc_out)
+        self.table_work.itemChanged.connect(self.event_work_update)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
 
     @staticmethod
@@ -139,40 +139,40 @@ class AdvancedSetup(Ui_MainWindow):
 
     # 타이머 함수
     def timeout(self):
-        self.set_playtime(self.player.position())
-        self.videoSlider.setValue(self.player.position())
-        if self.videoSlider.value() == self.duration:
-            self.stop_video()
+        self.set_playtime(self.video_player.position())
+        self.videoSlider.setValue(self.video_player.position())
+        if self.videoSlider.value() == self.video_duration:
+            self.video_stop()
         if self.subtitle_index < len(self.subtitle_paired):
-            in_out = list(map(lambda x: self.time_to_milli(x), (self.work_table.item(self.subtitle_paired[self.subtitle_index], i).text() for i in (0, 1))))
+            in_out = list(map(lambda x: self.time_to_milli(x), (self.table_work.item(self.subtitle_paired[self.subtitle_index], i).text() for i in (0, 1))))
             if self.subtitle_tc != in_out:
                 self.subtitle_tc = in_out
             index = self.subtitle_paired[self.subtitle_index]
-            if self.player.position() >= self.subtitle_tc[1]:
+            if self.video_player.position() >= self.subtitle_tc[1]:
                 if self.subtitle.text() != '':
                     self.subtitle.setText('')
-                    self.work_table.verticalHeaderItem(index).setBackgroundColor("white")
+                    self.table_work.verticalHeaderItem(index).setBackgroundColor("white")
                 self.subtitle_index += 1
-            elif self.player.position() >= self.subtitle_tc[0]:
-                text = self.work_table.item(self.subtitle_paired[self.subtitle_index], 2).text()
+            elif self.video_player.position() >= self.subtitle_tc[0]:
+                text = self.table_work.item(self.subtitle_paired[self.subtitle_index], 2).text()
                 if self.subtitle.text() != text:
                     self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
-                    self.work_table.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
-                    self.work_table.verticalHeaderItem(index).setBackgroundColor("yellow")
+                    self.table_work.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
+                    self.table_work.verticalHeaderItem(index).setBackgroundColor("yellow")
 
     # ******************************************** 화면 전환 함수 ******************************************** #
-    def default_view(self):
+    def view_default(self):
         for i in range(2):
-            self.work_table.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
+            self.table_work.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
         # 작업 화면 초기화 #
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
         self.main.resize(QSize(1080, 720))
 
-    def project_view(self):
+    def view_project(self):
         self.client['GET'] = None
-        self.work_table.clear()
-        self.work_table.setRowCount(200)
+        self.table_work.clear()
+        self.table_work.setRowCount(200)
         self.subtitle.clear()
         self.subtitle_paired.clear()
         self.subtitle_index = 0
@@ -181,15 +181,15 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_widget.setVisible(True)
         self.project_input.setVisible(False)
         self.project_list.clear()
-        self.project_table.clear()
-        self.player.setMedia(QMediaContent())
+        self.table_project.clear()
+        self.video_player.setMedia(QMediaContent())
         # self.duration = 0
         # self.videoSlider.setMaximum(self.duration)
         # self.stop_video()
-        self.progressbar.rpb_setValue(0)
-        self.progressbar.setVisible(False)
+        self.video_progressbar.rpb_setValue(0)
+        self.video_progressbar.setVisible(False)
 
-    def work_view(self):
+    def view_work(self):
         self.project_widget.setVisible(False)
         self.work_widget.setVisible(True)
 
@@ -202,7 +202,7 @@ class AdvancedSetup(Ui_MainWindow):
                 self.project_list.append(row)
                 item = QListWidgetItem(row)
                 item.setTextAlignment(Qt.AlignHCenter)
-                self.project_table.addItem(item)
+                self.table_project.addItem(item)
         # 자막 화면 갱신
         else:
             if 'update' not in ret:  # 최초 전체 갱신
@@ -211,11 +211,11 @@ class AdvancedSetup(Ui_MainWindow):
                 new_header = new_work_data.columns.tolist()
                 # 프로젝트 확인
                 self.work_video = new_video
-                self.set_video()
+                self.event_video_set()
                 # header 갱신
                 self.work_header = new_header
-                self.work_table.setColumnCount(len(new_header))
-                self.work_table.setHorizontalHeaderLabels(new_header)
+                self.table_work.setColumnCount(len(new_header))
+                self.table_work.setHorizontalHeaderLabels(new_header)
                 # 작업 갱신
                 for row in range(len(new_work_data.index)):
                     for column in range(len(new_work_data.columns)):
@@ -223,111 +223,111 @@ class AdvancedSetup(Ui_MainWindow):
                         if target:
                             item = QTableWidgetItem(str(target))
                             self.work_who = (row, column, item.text())
-                            self.work_table.setItem(row, column, item)
+                            self.table_work.setItem(row, column, item)
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
                     delete_language = set(self.work_header).difference(set(ret['header']))
                     if delete_language:
-                        self.work_table.removeColumn(self.work_header.index(delete_language.pop()))
+                        self.table_work.removeColumn(self.work_header.index(delete_language.pop()))
                     self.work_header = ret['header']
-                    self.work_table.setColumnCount(len(self.work_header))
-                    self.work_table.setHorizontalHeaderLabels(self.work_header)
+                    self.table_work.setColumnCount(len(self.work_header))
+                    self.table_work.setHorizontalHeaderLabels(self.work_header)
                 for update in ret['update']:
                     row, column, text = update
-                    if not self.work_table.item(row, column) or self.work_table.item(row, column).text() != text:
+                    if not self.table_work.item(row, column) or self.table_work.item(row, column).text() != text:
                         self.work_who = update
-                        self.work_table.setItem(row, column, QTableWidgetItem(text))
-            if self.progressbar.isVisible():
-                if self.player.isVideoAvailable():
-                    self.progressbar.setVisible(False)
+                        self.table_work.setItem(row, column, QTableWidgetItem(text))
+            if self.video_progressbar.isVisible():
+                if self.video_player.isVideoAvailable():
+                    self.video_progressbar.setVisible(False)
     # ******************************************** 화면 전환 함수 ******************************************** #
 
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
-    def play_video(self):
-        self.play.setText('❚❚')
-        self.player.play()
+    def video_play(self):
+        self.button_play.setText('❚❚')
+        self.video_player.play()
         self.timer.start()
-        self.play.setShortcut(u"Space")
+        self.button_play.setShortcut(u"Space")
 
-    def pause_video(self):
-        self.play.setText('▶')
+    def video_pause(self):
+        self.button_play.setText('▶')
         self.timer.stop()
-        self.player.pause()
-        self.play.setShortcut(u"Space")
+        self.video_player.pause()
+        self.button_play.setShortcut(u"Space")
 
-    def pass_prev_video(self):
-        if self.player.isVideoAvailable():
-            target = self.player.position()-5000
+    def video_stop(self):
+        self.video_pause()
+        self.videoSlider.setValue(0)
+        self.event_video_position()
+
+    def video_pass_prev(self):
+        if self.video_player.isVideoAvailable():
+            target = self.video_player.position() - 5000
             self.videoSlider.setValue(target)
             if self.videoSlider.value() == 0:
-                self.stop_video()
+                self.video_stop()
             else:
-                self.set_position()
-                self.play_video()
+                self.event_video_position()
+                self.video_play()
 
-    def pass_next_video(self):
-        if self.player.isVideoAvailable():
-            target = self.player.position()+5000
+    def video_pass_next(self):
+        if self.video_player.isVideoAvailable():
+            target = self.video_player.position() + 5000
             self.videoSlider.setValue(target)
-            if self.videoSlider.value() == self.duration:
-                self.stop_video()
+            if self.videoSlider.value() == self.video_duration:
+                self.video_stop()
             else:
-                self.set_position()
-                self.play_video()
+                self.event_video_position()
+                self.video_play()
 
-    def stop_video(self):
-        self.pause_video()
-        self.videoSlider.setValue(0)
-        self.set_position()
+    def event_video_button_play(self):
+        if self.button_play.text() == '❚❚':
+            self.video_pause()
+        else:
+            if self.video_player.isVideoAvailable():
+                self.video_play()
 
     def set_playtime(self, start):
         start = str(datetime.timedelta(milliseconds=start)).split(':')
-        end = str(datetime.timedelta(milliseconds=self.duration)).split(':')
+        end = str(datetime.timedelta(milliseconds=self.video_duration)).split(':')
         start_sec, end_sec = start.pop(-1)[:6], end.pop(-1)[:6]
         self.playtime.setText('{}:{}:{} / {}:{}:{}'.format(*start, start_sec, *end, end_sec))
 
-    def play_clicked_event(self):
-        if self.play.text() == '❚❚':
-            self.pause_video()
-        else:
-            if self.player.isVideoAvailable():
-                self.play_video()
-
-    def sound_slider_event(self):
-        self.player.setVolume(self.soundSlider.value())
+    def event_video_sound(self):
+        self.video_player.setVolume(self.soundSlider.value())
         self.sound.setText(str(self.soundSlider.value()))
 
-    def video_duration_event(self):
-        self.duration = self.player.duration()
-        self.videoSlider.setMaximum(self.duration)
-        self.stop_video()
+    def event_video_duration(self):
+        self.video_duration = self.video_player.duration()
+        self.videoSlider.setMaximum(self.video_duration)
+        self.video_stop()
 
-    def set_position(self):
-        self.player.setPosition(self.videoSlider.value())
+    def event_video_position(self):
+        self.video_player.setPosition(self.videoSlider.value())
         self.set_playtime(self.videoSlider.value())
         # 자막 위치 찾기
         self.subtitle.setText('')
-        time_codes = [self.work_table.item(i, 0).text() for i in self.subtitle_paired]
+        time_codes = [self.table_work.item(i, 0).text() for i in self.subtitle_paired]
         try:
-            self.work_table.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor("white")
+            self.table_work.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor("white")
         except (IndexError, AttributeError):
             pass
         self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
 
-    def set_video(self):
+    def event_video_set(self):
         filename = self.work_video['video']
         location = os.path.join(os.getcwd(), FOLDER)
         video_path = os.path.join(location, filename)
-        self.progressbar.setVisible(True)
+        self.video_progressbar.setVisible(True)
         if not os.path.exists(video_path):
-            self.load_video_event(location, video_path, self.work_video['url'].split('/')[-2])
+            self.video_load(location, video_path, self.work_video['url'].split('/')[-2])
         else:
-            if self.progressbar.rpb_textValue != '100%':
-                self.progressbar.rpb_setValue(100)
+            if self.video_progressbar.rpb_textValue != '100%':
+                self.video_progressbar.rpb_setValue(100)
             media = QMediaContent(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
-            self.player.setMedia(media)
+            self.video_player.setMedia(media)
 
-    def load_video_event(self, location, video_path, fileid):
+    def video_load(self, location, video_path, fileid):
         if not os.path.exists(location):
             os.mkdir(location)
         self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
@@ -335,10 +335,10 @@ class AdvancedSetup(Ui_MainWindow):
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
 
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
-    def create_project(self):
-        self.project_input.setVisible(True)
+    def event_project_input_visible(self):
+        self.project_input.setVisible(not self.project_input.isVisible())
 
-    def create_accept(self):
+    def event_project_create_accept(self):
         self.project_input.setVisible(False)
         project = list(filter(lambda x: type(x) == QLineEdit, self.project_input.children()))
         project_name, file_url = map(lambda x: x.text(), project)
@@ -350,16 +350,13 @@ class AdvancedSetup(Ui_MainWindow):
             err = QMessageBox()
             err.information(self.main, 'error', 'invalid url!')
 
-    def create_reject(self):
-        self.project_input.setVisible(False)
-
-    def join_project(self):
-        self.client['GET'] = self.project_table.currentItem().text()
-        self.work_view()
+    def event_project_join(self):
+        self.client['GET'] = self.table_project.currentItem().text()
+        self.view_work()
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
 
     # ******************************************** 작업 이벤트 함수 ******************************************** #
-    def add_language(self):
+    def event_work_add_language(self):
         select_language = QMessageBox()
         select_language.setWindowTitle('언어선택')
         select_language.setStandardButtons(select_language.Yes | select_language.No)
@@ -377,12 +374,12 @@ class AdvancedSetup(Ui_MainWindow):
                 msg = '{} ({})'.format(msg, num)
             self.client['POST'][3] = [msg]
 
-    def update_work(self):
+    def event_work_update(self):
         if self.work_who:
             row_position = self.work_who[0]
             self.work_who = None
         else:
-            cell = self.work_table.currentItem()
+            cell = self.table_work.currentItem()
             cell_data = (cell.row(), cell.column(), cell.text())
             # TC Validation: format
             if cell_data[1] in (0, 1):
@@ -391,16 +388,16 @@ class AdvancedSetup(Ui_MainWindow):
                     self.client['POST'][5] = [cell_data]
                     row_position = cell.row()
                 except AssertionError:
-                    self.work_table.setItem(cell_data[0], cell_data[1], QTableWidgetItem(0))
+                    self.table_work.setItem(cell_data[0], cell_data[1], QTableWidgetItem(0))
                     row_position = 0
             else:
                 self.client['POST'][5] = [cell_data]
                 row_position = cell.row()
-        if row_position + 50 >= self.work_table.rowCount():  # QTableWidget 행 추가
-            self.work_table.setRowCount(self.work_table.rowCount() + 100)
+        if row_position + 50 >= self.table_work.rowCount():  # QTableWidget 행 추가
+            self.table_work.setRowCount(self.table_work.rowCount() + 100)
         # TC Validation: set
         index = bisect.bisect_left(self.subtitle_paired, row_position)
-        if False not in map(lambda x: bool(x.text()) if x else False, (self.work_table.item(row_position, i) for i in (0, 1))):
+        if False not in map(lambda x: bool(x.text()) if x else False, (self.table_work.item(row_position, i) for i in (0, 1))):
             if index == len(self.subtitle_paired) or self.subtitle_paired[index] != row_position:
                 self.subtitle_paired.insert(index, row_position)
                 if index < self.subtitle_index:
@@ -408,13 +405,13 @@ class AdvancedSetup(Ui_MainWindow):
         else:
             if index < len(self.subtitle_paired) and self.subtitle_paired[index] == row_position:
                 check = self.subtitle_paired.pop(index)
-                if index == self.subtitle_index and self.work_table.verticalHeaderItem(check):
-                    self.work_table.verticalHeaderItem(check).setBackgroundColor("white")
+                if index == self.subtitle_index and self.table_work.verticalHeaderItem(check):
+                    self.table_work.verticalHeaderItem(check).setBackgroundColor("white")
                 elif index < self.subtitle_index:
                     self.subtitle_index -= 1
         # TODO TimeCode validation check: IN OUT complex
 
-    def add_subtitle(self, url):
+    def event_work_add_subtitle(self, url):
         subs = pysrt.open(url)
         srt = list()
         for i in subs:
@@ -423,11 +420,11 @@ class AdvancedSetup(Ui_MainWindow):
             srt.append((i.index - 1, 2, str(i.text).replace('\n', '|')))
         self.client['POST'][5] = srt
 
-    def export_work(self):
+    def event_work_export(self):
         sub = pysrt.SubRipFile()
         empty_text = list()
         for index in self.subtitle_paired:
-            item = self.work_table.item(index, 0), self.work_table.item(index, 1), self.work_table.item(index, 2)
+            item = self.table_work.item(index, 0), self.table_work.item(index, 1), self.table_work.item(index, 2)
             if item[2]:
                 item = pysrt.SubRipItem(index + 1, item[0].text().replace('.', ','), item[1].text().replace('.', ','),
                                         item[2].text().replace('|', '\n'))
@@ -439,7 +436,7 @@ class AdvancedSetup(Ui_MainWindow):
             err.information(self.main, 'error', 'no text in {}'.format(empty_text))
         sub.save(os.path.join(FOLDER, 'sample.srt'))
 
-    def delete_language(self):
+    def event_work_delete_language(self):
         select_language = QMessageBox()
         select_language.setWindowTitle('언어선택')
         select_language.setStandardButtons(select_language.Yes | select_language.No)
@@ -450,30 +447,31 @@ class AdvancedSetup(Ui_MainWindow):
         for lang in self.work_header[3:]:
             combobox.addItem(lang)
         if select_language.exec_() == select_language.Yes:
-            self.client['POST'][4] = [combobox.currentText()]
+            if combobox.currentText():
+                self.client['POST'][4] = [combobox.currentText()]
 
-    def event_tc_set(self):
-        tc = self.player.position()
-        row = self.work_table.currentIndex().row()
+    def event_work_tc_set(self):
+        tc = self.video_player.position()
+        row = self.table_work.currentIndex().row()
         self.tc_put(0, tc, row)
-        if row > 0 and (self.work_table.item(row - 1, 1) is None or not self.work_table.item(row - 1, 1).text()):
+        if row > 0 and (self.table_work.item(row - 1, 1) is None or not self.table_work.item(row - 1, 1).text()):
             self.tc_put(1, tc, row - 1)
-        self.work_table.setCurrentCell(row + 1, 0)
+        self.table_work.setCurrentCell(row + 1, 0)
 
-    def event_tc_in(self):
-        row = self.work_table.currentIndex().row()
-        self.tc_put(0, self.player.position(), row)
+    def event_work_tc_in(self):
+        row = self.table_work.currentIndex().row()
+        self.tc_put(0, self.video_player.position(), row)
 
-    def event_tc_out(self):
-        row = self.work_table.currentIndex().row()
-        self.tc_put(1, self.player.position(), row)
-        self.work_table.setCurrentCell(row + 1, 0)
+    def event_work_tc_out(self):
+        row = self.table_work.currentIndex().row()
+        self.tc_put(1, self.video_player.position(), row)
+        self.table_work.setCurrentCell(row + 1, 0)
 
     def tc_put(self, column, tc, row):
         row = row if row >= 0 else 0
-        self.work_table.setCurrentCell(row, column)
+        self.table_work.setCurrentCell(row, column)
         item = QTableWidgetItem(self.milli_to_time(tc))
-        self.work_table.setItem(row, column, item)
+        self.table_work.setItem(row, column, item)
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
@@ -486,6 +484,6 @@ class DownLoadThread(QThread):
         self.video_path = video_path
 
     def run(self):
-        gdown.download(self.download_link, self.video_path, self.main.progressbar)
-        self.main.set_video()
+        gdown.download(self.download_link, self.video_path, self.main.video_progressbar)
+        self.main.event_video_set()
 # ******************************************** 쓰레드 작업 ******************************************** #
