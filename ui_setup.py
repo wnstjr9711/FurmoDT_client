@@ -109,7 +109,8 @@ class AdvancedSetup(Ui_MainWindow):
 
         # ******************************************** 작업 조작 이벤트 ******************************************** #
         self.quit_work.clicked.connect(self.project_view)
-        self.add_work.clicked.connect(self.add_language)
+        self.button_add_language.clicked.connect(self.add_language)
+        self.button_delete_language.clicked.connect(self.delete_language)
         self.save_work.clicked.connect(self.export_work)
         self.button_tc_set.clicked.connect(self.event_tc_set)
         self.button_tc_in.clicked.connect(self.event_tc_in)
@@ -225,6 +226,9 @@ class AdvancedSetup(Ui_MainWindow):
                             self.work_table.setItem(row, column, item)
             else:  # 부분 갱신
                 if self.work_header != ret['header']:
+                    delete_language = set(self.work_header).difference(set(ret['header']))
+                    if delete_language:
+                        self.work_table.removeColumn(self.work_header.index(delete_language.pop()))
                     self.work_header = ret['header']
                     self.work_table.setColumnCount(len(self.work_header))
                     self.work_table.setHorizontalHeaderLabels(self.work_header)
@@ -384,13 +388,13 @@ class AdvancedSetup(Ui_MainWindow):
             if cell_data[1] in (0, 1):
                 try:
                     assert cell_data[2] == '' or bool(re.match(r"\d{2}:\d{2}:\d{2}.\d{3}$", cell_data[2]))
-                    self.client['POST'][4] = [cell_data]
+                    self.client['POST'][5] = [cell_data]
                     row_position = cell.row()
                 except AssertionError:
                     self.work_table.setItem(cell_data[0], cell_data[1], QTableWidgetItem(0))
                     row_position = 0
             else:
-                self.client['POST'][4] = [cell_data]
+                self.client['POST'][5] = [cell_data]
                 row_position = cell.row()
         if row_position + 50 >= self.work_table.rowCount():  # QTableWidget 행 추가
             self.work_table.setRowCount(self.work_table.rowCount() + 100)
@@ -417,19 +421,37 @@ class AdvancedSetup(Ui_MainWindow):
             srt.append((i.index - 1, 0, str(i.start).replace(',', '.')))
             srt.append((i.index - 1, 1, str(i.end).replace(',', '.')))
             srt.append((i.index - 1, 2, str(i.text).replace('\n', '|')))
-        self.client['POST'][4] = srt
+        self.client['POST'][5] = srt
 
     def export_work(self):
         sub = pysrt.SubRipFile()
+        empty_text = list()
         for index in self.subtitle_paired:
-            item = pysrt.SubRipItem(index + 1, self.work_table.item(index, 0).text().replace('.', ','), self.work_table.item(index, 1).text().replace('.', ','),
-                                    self.work_table.item(index, 2).text().replace('|', '\n'))
-            sub.append(item)
+            item = self.work_table.item(index, 0), self.work_table.item(index, 1), self.work_table.item(index, 2)
+            if item[2]:
+                item = pysrt.SubRipItem(index + 1, item[0].text().replace('.', ','), item[1].text().replace('.', ','),
+                                        item[2].text().replace('|', '\n'))
+                sub.append(item)
+            else:
+                empty_text.append(index)
+        if empty_text:
+            err = QMessageBox()
+            err.information(self.main, 'error', 'no text in {}'.format(empty_text))
         sub.save(os.path.join(FOLDER, 'sample.srt'))
 
-    # def delete_language(self):
-    #     self.work_table.removeColumn(3)
-    #     self.client['POST'][123] = remove language
+    def delete_language(self):
+        select_language = QMessageBox()
+        select_language.setWindowTitle('언어선택')
+        select_language.setStandardButtons(select_language.Yes | select_language.No)
+        select_language.setGeometry(self.main.x() + self.main.width()/2, self.main.y() + self.main.height()/2,
+                                    select_language.width(), select_language.height())
+        combobox = QComboBox(select_language)
+        combobox.setGeometry(45, combobox.y(), combobox.width(), combobox.height())
+        for lang in self.work_header[3:]:
+            combobox.addItem(lang)
+        if select_language.exec_() == select_language.Yes:
+            self.client['POST'][4] = [combobox.currentText()]
+
     def event_tc_set(self):
         tc = self.player.position()
         row = self.work_table.currentIndex().row()

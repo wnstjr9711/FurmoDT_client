@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationkZkNXw.ui'
+## Form generated from reading UI file 'applicationANIlWE.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -223,16 +223,16 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.quit_work)
 
-        self.add_work = QPushButton(self.widget)
-        self.add_work.setObjectName(u"add_work")
-        self.add_work.setEnabled(True)
+        self.button_add_language = QPushButton(self.widget)
+        self.button_add_language.setObjectName(u"button_add_language")
+        self.button_add_language.setEnabled(True)
 
-        self.horizontalLayout.addWidget(self.add_work)
+        self.horizontalLayout.addWidget(self.button_add_language)
 
-        self.load_work = QPushButton(self.widget)
-        self.load_work.setObjectName(u"load_work")
+        self.button_delete_language = QPushButton(self.widget)
+        self.button_delete_language.setObjectName(u"button_delete_language")
 
-        self.horizontalLayout.addWidget(self.load_work)
+        self.horizontalLayout.addWidget(self.button_delete_language)
 
         self.save_work = QPushButton(self.widget)
         self.save_work.setObjectName(u"save_work")
@@ -294,8 +294,8 @@ class Ui_MainWindow(object):
         self.button_tc_out.setShortcut(QCoreApplication.translate("MainWindow", u"F3", None))
 #endif // QT_CONFIG(shortcut)
         self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
-        self.add_work.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \ucd94\uac00\ud558\uae30", None))
-        self.load_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ubd88\ub7ec\uc624\uae30", None))
+        self.button_add_language.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \ucd94\uac00\ud558\uae30", None))
+        self.button_delete_language.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \uc0ad\uc81c\ud558\uae30", None))
         self.save_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ub0b4\ubcf4\ub0b4\uae30", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc885\ub8cc", None))
     # retranslateUi
