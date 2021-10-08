@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationMgEWhU.ui'
+## Form generated from reading UI file 'applicationkZkNXw.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -173,6 +173,47 @@ class Ui_MainWindow(object):
         self.work_widget.setObjectName(u"work_widget")
         self.gridLayout_3 = QGridLayout(self.work_widget)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.button_tc_set = QPushButton(self.work_widget)
+        self.button_tc_set.setObjectName(u"button_tc_set")
+
+        self.horizontalLayout_4.addWidget(self.button_tc_set)
+
+        self.button_tc_in = QPushButton(self.work_widget)
+        self.button_tc_in.setObjectName(u"button_tc_in")
+
+        self.horizontalLayout_4.addWidget(self.button_tc_in)
+
+        self.button_tc_out = QPushButton(self.work_widget)
+        self.button_tc_out.setObjectName(u"button_tc_out")
+
+        self.horizontalLayout_4.addWidget(self.button_tc_out)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout_4, 1, 0, 1, 1)
+
+        self.work_table = QTableWidget(self.work_widget)
+        if (self.work_table.columnCount() < 3):
+            self.work_table.setColumnCount(3)
+        if (self.work_table.rowCount() < 200):
+            self.work_table.setRowCount(200)
+        self.work_table.setObjectName(u"work_table")
+        self.work_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.work_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.work_table.setAutoScroll(True)
+        self.work_table.setRowCount(200)
+        self.work_table.setColumnCount(3)
+        self.work_table.horizontalHeader().setVisible(True)
+        self.work_table.horizontalHeader().setCascadingSectionResizes(False)
+        self.work_table.horizontalHeader().setProperty("showSortIndicator", False)
+        self.work_table.horizontalHeader().setStretchLastSection(False)
+        self.work_table.verticalHeader().setVisible(True)
+        self.work_table.verticalHeader().setCascadingSectionResizes(False)
+        self.work_table.verticalHeader().setProperty("showSortIndicator", False)
+
+        self.gridLayout_3.addWidget(self.work_table, 2, 0, 1, 1)
+
         self.widget = QWidget(self.work_widget)
         self.widget.setObjectName(u"widget")
         self.horizontalLayout = QHBoxLayout(self.widget)
@@ -207,27 +248,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
 
-        self.work_table = QTableWidget(self.work_widget)
-        if (self.work_table.columnCount() < 3):
-            self.work_table.setColumnCount(3)
-        if (self.work_table.rowCount() < 200):
-            self.work_table.setRowCount(200)
-        self.work_table.setObjectName(u"work_table")
-        self.work_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.work_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.work_table.setAutoScroll(True)
-        self.work_table.setRowCount(200)
-        self.work_table.setColumnCount(3)
-        self.work_table.horizontalHeader().setVisible(True)
-        self.work_table.horizontalHeader().setCascadingSectionResizes(False)
-        self.work_table.horizontalHeader().setProperty("showSortIndicator", False)
-        self.work_table.horizontalHeader().setStretchLastSection(False)
-        self.work_table.verticalHeader().setVisible(True)
-        self.work_table.verticalHeader().setCascadingSectionResizes(False)
-        self.work_table.verticalHeader().setProperty("showSortIndicator", False)
-
-        self.gridLayout_3.addWidget(self.work_table, 1, 0, 1, 1)
-
 
         self.gridLayout_2.addWidget(self.work_widget, 0, 2, 1, 1)
 
@@ -261,6 +281,18 @@ class Ui_MainWindow(object):
         self.button_create_project.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc0dd\uc131", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
+        self.button_tc_set.setText(QCoreApplication.translate("MainWindow", u"TC SET", None))
+#if QT_CONFIG(shortcut)
+        self.button_tc_set.setShortcut(QCoreApplication.translate("MainWindow", u"F1", None))
+#endif // QT_CONFIG(shortcut)
+        self.button_tc_in.setText(QCoreApplication.translate("MainWindow", u"TC IN", None))
+#if QT_CONFIG(shortcut)
+        self.button_tc_in.setShortcut(QCoreApplication.translate("MainWindow", u"F2", None))
+#endif // QT_CONFIG(shortcut)
+        self.button_tc_out.setText(QCoreApplication.translate("MainWindow", u"TC OUT", None))
+#if QT_CONFIG(shortcut)
+        self.button_tc_out.setShortcut(QCoreApplication.translate("MainWindow", u"F3", None))
+#endif // QT_CONFIG(shortcut)
         self.quit_work.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
         self.add_work.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \ucd94\uac00\ud558\uae30", None))
         self.load_work.setText(QCoreApplication.translate("MainWindow", u"\uc790\ub9c9 \ubd88\ub7ec\uc624\uae30", None))

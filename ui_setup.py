@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox
 from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
-from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
+from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt, QModelIndex
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtGui import QFont
 from PySide2extn.RoundProgressBar import roundProgressBar
@@ -111,6 +111,9 @@ class AdvancedSetup(Ui_MainWindow):
         self.quit_work.clicked.connect(self.project_view)
         self.add_work.clicked.connect(self.add_language)
         self.save_work.clicked.connect(self.export_work)
+        self.button_tc_set.clicked.connect(self.event_tc_set)
+        self.button_tc_in.clicked.connect(self.event_tc_in)
+        self.button_tc_out.clicked.connect(self.event_tc_out)
         self.work_table.itemChanged.connect(self.update_work)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
 
@@ -179,9 +182,9 @@ class AdvancedSetup(Ui_MainWindow):
         self.project_list.clear()
         self.project_table.clear()
         self.player.setMedia(QMediaContent())
-        self.duration = 0
-        self.videoSlider.setMaximum(self.duration)
-        self.stop_video()
+        # self.duration = 0
+        # self.videoSlider.setMaximum(self.duration)
+        # self.stop_video()
         self.progressbar.rpb_setValue(0)
         self.progressbar.setVisible(False)
 
@@ -356,8 +359,10 @@ class AdvancedSetup(Ui_MainWindow):
         select_language = QMessageBox()
         select_language.setWindowTitle('언어선택')
         select_language.setStandardButtons(select_language.Yes | select_language.No)
+        select_language.setGeometry(self.main.x() + self.main.width()/2, self.main.y() + self.main.height()/2,
+                                    select_language.width(), select_language.height())
         combobox = QComboBox(select_language)
-        combobox.setGeometry(50, combobox.y(), combobox.width(), combobox.height())
+        combobox.setGeometry(45, combobox.y(), combobox.width(), combobox.height())
         for lang in ['한국어', '영어', '베트남어', '일본어', '중국어']:
             combobox.addItem(lang)
         if select_language.exec_() == select_language.Yes:
@@ -425,6 +430,28 @@ class AdvancedSetup(Ui_MainWindow):
     # def delete_language(self):
     #     self.work_table.removeColumn(3)
     #     self.client['POST'][123] = remove language
+    def event_tc_set(self):
+        tc = self.player.position()
+        row = self.work_table.currentIndex().row()
+        self.tc_put(0, tc, row)
+        if row > 0 and (self.work_table.item(row - 1, 1) is None or not self.work_table.item(row - 1, 1).text()):
+            self.tc_put(1, tc, row - 1)
+        self.work_table.setCurrentCell(row + 1, 0)
+
+    def event_tc_in(self):
+        row = self.work_table.currentIndex().row()
+        self.tc_put(0, self.player.position(), row)
+
+    def event_tc_out(self):
+        row = self.work_table.currentIndex().row()
+        self.tc_put(1, self.player.position(), row)
+        self.work_table.setCurrentCell(row + 1, 0)
+
+    def tc_put(self, column, tc, row):
+        row = row if row >= 0 else 0
+        self.work_table.setCurrentCell(row, column)
+        item = QTableWidgetItem(self.milli_to_time(tc))
+        self.work_table.setItem(row, column, item)
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
