@@ -1,6 +1,7 @@
 # -*-coding: utf-8 -*-
 
 import websockets
+import websockets.client
 import json
 
 

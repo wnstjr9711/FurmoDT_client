@@ -206,16 +206,14 @@ class AdvancedSetup(Ui_MainWindow):
         # 자막 화면 갱신
         else:
             if 'update' not in ret:  # 최초 전체 갱신
-                new_video = ret['metadata']
                 new_work_data = read_json(ret['work'])
-                new_header = new_work_data.columns.tolist()
                 # 프로젝트 확인
-                self.work_video = new_video
+                self.work_video = ret['metadata']
                 self.event_video_set()
                 # header 갱신
-                self.work_header = new_header
-                self.table_work.setColumnCount(len(new_header))
-                self.table_work.setHorizontalHeaderLabels(new_header)
+                self.work_header = new_work_data.columns.tolist()
+                self.table_work.setColumnCount(len(self.work_header))
+                self.table_work.setHorizontalHeaderLabels(self.work_header)
                 # 작업 갱신
                 for row in range(len(new_work_data.index)):
                     for column in range(len(new_work_data.columns)):
@@ -434,7 +432,7 @@ class AdvancedSetup(Ui_MainWindow):
         if empty_text:
             err = QMessageBox()
             err.information(self.main, 'error', 'no text in {}'.format(empty_text))
-        sub.save(os.path.join(FOLDER, 'sample.srt'))
+        sub.save(os.path.join(FOLDER, '{}.srt'.format(self.work_video['video'])))
 
     def event_work_delete_language(self):
         select_language = QMessageBox()
