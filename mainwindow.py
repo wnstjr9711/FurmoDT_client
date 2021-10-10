@@ -94,6 +94,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.videoSlider.sliderPressed.connect(self.video_pause)
         self.videoSlider.sliderReleased.connect(self.event_video_position)
         self.video_player.durationChanged.connect(self.event_video_duration)
+        self.video_player.currentMediaChanged.connect(self.event_video_clear_macos)
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
 
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
@@ -202,9 +203,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.project_list.clear()
         self.table_project.clear()
         self.video_player.setMedia(QMediaContent())
-        # self.duration = 0
-        # self.videoSlider.setMaximum(self.duration)
-        # self.stop_video()
         self.video_progressbar.rpb_setValue(0)
         self.video_progressbar.setVisible(False)
 
@@ -332,6 +330,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pass
         self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
 
+    def event_video_clear_macos(self):
+        if not self.video_player.media().canonicalUrl().url():
+            self.video_duration = 0
+            self.videoSlider.setMaximum(self.video_duration)
+            self.video_stop()
+
     def event_video_set(self):
         filename = self.work_video['video']
         location = os.path.join(os.getcwd(), FOLDER)
@@ -350,7 +354,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             os.mkdir(location)
         self.thread_video_download = gdown.DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
         self.thread_video_download.start()
-
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
 
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
