@@ -25,9 +25,7 @@ class AdvancedSetup(Ui_MainWindow):
         self.setupUi(self.main)
 
         # ui 설정
-        font = QFont()
-        font.setPointSize(20)
-        self.table_project.setFont(font)
+        self.table_project.setFont(QFont("나눔명조", 30))
 
         # 색상 설정
         self.table_project.setStyleSheet("border-radius: 10px;"
@@ -57,6 +55,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         # 자막
         self.subtitle = QLabel(self.videowidget)
+        self.subtitle.setFont(QFont('나눔명조', 7))
         x, y = self.video_widget.width(), int(self.video_widget.height()/8)
         self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
         self.subtitle.setStyleSheet("background-color: black;"
