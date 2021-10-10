@@ -3,7 +3,6 @@ from PySide2.QtGui import QIcon
 import qasync
 import sys
 import os
-
 import socket_client
 from mainwindow import MainWindow
 from login import LoginWindow
