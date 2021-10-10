@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox, QMainWindow
 from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
-from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
+from PySide2.QtCore import QUrl, QTimer, QSize, Qt
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtGui import QFont
 from PySide2extn.RoundProgressBar import roundProgressBar

@@ -6,3 +6,5 @@ class LoginWindow(QDialog, Ui_Dialog):
     def __init__(self):
         super(LoginWindow, self).__init__()
         self.setupUi(self)
+        self.authorized = True
+        self.exec_()
