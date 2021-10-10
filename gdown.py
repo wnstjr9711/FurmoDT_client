@@ -1,21 +1,37 @@
-import json
 import os
 import re
-import shutil
-import tempfile
 import six
-import tqdm
 import sys
+import json
+import tqdm
+import shutil
+import requests
+import tempfile
 import textwrap
 import warnings
-from six.moves import urllib_parse
 import os.path as osp
-import requests
 from bs4 import BeautifulSoup
+from six.moves import urllib_parse
+from PySide2.QtCore import QThread
 
 home = osp.expanduser("~")
 CHUNK_SIZE = 512 * 1024
 PROGRESS = 0
+
+
+# ******************************************** 쓰레드 작업 ******************************************** #
+class DownLoadThread(QThread):
+    def __init__(self, main, download_link, video_path):
+        super(DownLoadThread, self).__init__()
+        self.main = main
+        self.download_link = download_link
+        self.video_path = video_path
+
+    def run(self):
+        download(self.download_link, self.video_path, self.main.video_progressbar)
+        self.main.event_video_set()
+# ******************************************** 쓰레드 작업 ******************************************** #
+
 
 if hasattr(textwrap, "indent"):
     indent_func = textwrap.indent

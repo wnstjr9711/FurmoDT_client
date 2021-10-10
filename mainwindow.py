@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox
+from PySide2.QtWidgets import QLineEdit, QLabel, QListWidgetItem, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox, QMainWindow
 from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
 from PySide2.QtCore import QUrl, QTimer, QThread, QSize, Qt
 from PySide2.QtMultimediaWidgets import QVideoWidget
@@ -10,22 +10,28 @@ import datetime
 import bisect
 import pysrt
 import gdown
+import re
 import sys
 import os
-import re
 
 FOLDER = 'video_download'
 
 
-class AdvancedSetup(Ui_MainWindow):
-    def __init__(self, main):
-        super().__init__()
-        # ui 불러오기
-        self.main = main
-        self.setupUi(self.main)
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self, client):
+        super(MainWindow, self).__init__()
 
         # ui 설정
-        self.table_project.setFont(QFont("나눔명조", 30))
+        self.setupUi(self)
+        self.table_project.setFont(QFont("나눔명조", 25))
+
+        # 클라이언트 초기화
+        self.client = {
+            "id": client,
+            "qualified": "",
+            "GET": None,     # None: project,  project id: work
+            "POST": dict(),
+        }
 
         # 색상 설정
         self.table_project.setStyleSheet("border-radius: 10px;"
@@ -55,8 +61,8 @@ class AdvancedSetup(Ui_MainWindow):
 
         # 자막
         self.subtitle = QLabel(self.videowidget)
-        self.subtitle.setFont(QFont('나눔명조', 7))
-        x, y = self.video_widget.width(), int(self.video_widget.height()/8)
+        self.subtitle.setFont(QFont('나눔명조', 8))
+        x, y = self.video_widget.width(), int(self.video_widget.height() / 8)
         self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
         self.subtitle.setStyleSheet("background-color: black;"
                                     "color: white;")
@@ -77,14 +83,7 @@ class AdvancedSetup(Ui_MainWindow):
 
         # 초기화면 설정
         self.view_default()
-
-        # 클라이언트 초기화
-        self.client = {
-            "id": "",
-            "qualified": "",
-            "GET": None,     # None: project,  project id: work
-            "POST": dict(),
-        }
+        self.setAcceptDrops(True)
 
         # ******************************************** 동영상 플레이어 조작 이벤트 ******************************************** #
         self.button_play.clicked.connect(self.event_video_button_play)
@@ -117,6 +116,25 @@ class AdvancedSetup(Ui_MainWindow):
         self.table_work.itemChanged.connect(self.event_work_update)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
 
+    # ******************************************** 이벤트 오버라이딩 ******************************************** #
+    def dragEnterEvent(self, e):
+        if self.work_widget.isVisible():
+            e.accept()
+
+    def dragMoveEvent(self, e):
+        target = self.work_widget
+        x_range = range(*(target.x(), target.x() + target.width() + 1))
+        y_range = range(*(target.y(), target.y() + target.height() + 1))
+        if e.pos().x() in x_range and e.pos().y() in y_range:
+            e.accept()
+        else:
+            e.ignore()
+
+    def dropEvent(self, e):
+        self.event_work_add_subtitle(e.mimeData().urls()[0].toLocalFile())
+    # ******************************************** 이벤트 오버라이딩 ******************************************** #
+
+    # ******************************************** 타이머 ******************************************** #
     @staticmethod
     def milli_to_time(milli):
         ms = milli % 1000
@@ -132,18 +150,15 @@ class AdvancedSetup(Ui_MainWindow):
         h, m, s = time.split(':')
         return int(h) * 60 * 60 * 1000 + int(m) * 60 * 1000 + int(float(s) * 1000)
 
-    # post 메시지 초기화
-    def setdefault_client(self):
-        self.client['POST'].clear()
-
-    # 타이머 함수
     def timeout(self):
         self.set_playtime(self.video_player.position())
         self.videoSlider.setValue(self.video_player.position())
         if self.videoSlider.value() == self.video_duration:
             self.video_stop()
         if self.subtitle_index < len(self.subtitle_paired):
-            in_out = list(map(lambda x: self.time_to_milli(x), (self.table_work.item(self.subtitle_paired[self.subtitle_index], i).text() for i in (0, 1))))
+            in_out = list(map(lambda x: self.time_to_milli(x),
+                              (self.table_work.item(self.subtitle_paired[self.subtitle_index], i).text() for i in
+                               (0, 1))))
             if self.subtitle_tc != in_out:
                 self.subtitle_tc = in_out
             index = self.subtitle_paired[self.subtitle_index]
@@ -158,15 +173,20 @@ class AdvancedSetup(Ui_MainWindow):
                     self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
                     self.table_work.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
                     self.table_work.verticalHeaderItem(index).setBackgroundColor("yellow")
+    # ******************************************** 타이머 ******************************************** #
 
-    # ******************************************** 화면 전환 함수 ******************************************** #
+    # ******************************************** 화면 상태 함수 ******************************************** #
+    # post 메시지 초기화
+    def setdefault_client(self):
+        self.client['POST'].clear()
+
     def view_default(self):
         for i in range(2):
             self.table_work.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
         # 작업 화면 초기화 #
         self.project_input.setVisible(False)
         self.work_widget.setVisible(False)
-        self.main.resize(QSize(1080, 720))
+        self.resize(QSize(1080, 720))
 
     def view_project(self):
         self.client['GET'] = None
@@ -237,7 +257,7 @@ class AdvancedSetup(Ui_MainWindow):
             if self.video_progressbar.isVisible():
                 if self.video_player.isVideoAvailable():
                     self.video_progressbar.setVisible(False)
-    # ******************************************** 화면 전환 함수 ******************************************** #
+    # ******************************************** 화면 상태 함수 ******************************************** #
 
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
     def video_play(self):
@@ -306,7 +326,8 @@ class AdvancedSetup(Ui_MainWindow):
         self.subtitle.setText('')
         time_codes = [self.table_work.item(i, 0).text() for i in self.subtitle_paired]
         try:
-            self.table_work.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor("white")
+            self.table_work.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor(
+                "white")
         except (IndexError, AttributeError):
             pass
         self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
@@ -327,8 +348,9 @@ class AdvancedSetup(Ui_MainWindow):
     def video_load(self, location, video_path, fileid):
         if not os.path.exists(location):
             os.mkdir(location)
-        self.thread_video_download = DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
+        self.thread_video_download = gdown.DownLoadThread(self, 'https://drive.google.com/uc?id=' + fileid, video_path)
         self.thread_video_download.start()
+
     # ******************************************** 동영상 플레이 이벤트 함수 ******************************************** #
 
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
@@ -345,31 +367,34 @@ class AdvancedSetup(Ui_MainWindow):
             clear = list(map(lambda x: x.clear(), project))
         else:
             err = QMessageBox()
-            err.information(self.main, 'error', 'invalid url!')
+            err.information(self, 'error', 'invalid url!')
 
     def event_project_join(self):
         self.client['GET'] = self.table_project.currentItem().text()
         self.view_work()
+
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
 
     # ******************************************** 작업 이벤트 함수 ******************************************** #
     def event_work_add_language(self):
-        select_language = QMessageBox()
-        select_language.setWindowTitle('언어선택')
-        select_language.setStandardButtons(select_language.Yes | select_language.No)
-        select_language.setGeometry(self.main.x() + self.main.width()/2, self.main.y() + self.main.height()/2,
-                                    select_language.width(), select_language.height())
-        combobox = QComboBox(select_language)
-        combobox.setGeometry(45, combobox.y(), combobox.width(), combobox.height())
+        select_language = CustomQMessageBox(self)
         for lang in ['한국어', '영어', '베트남어', '일본어', '중국어']:
-            combobox.addItem(lang)
+            select_language.combobox.addItem(lang)
         if select_language.exec_() == select_language.Yes:
-            msg, num = combobox.currentText(), 1
+            msg, num = select_language.combobox.currentText(), 1
             if msg in self.work_header:
                 while '{} ({})'.format(msg, num) in self.work_header:
                     num += 1
                 msg = '{} ({})'.format(msg, num)
             self.client['POST'][3] = [msg]
+
+    def event_work_delete_language(self):
+        select_language = CustomQMessageBox(self)
+        for lang in self.work_header[3:]:
+            select_language.combobox.addItem(lang)
+        if select_language.exec_() == select_language.Yes:
+            if select_language.combobox.currentText():
+                self.client['POST'][4] = [select_language.combobox.currentText()]
 
     def event_work_update(self):
         if self.work_who:
@@ -394,7 +419,8 @@ class AdvancedSetup(Ui_MainWindow):
             self.table_work.setRowCount(self.table_work.rowCount() + 100)
         # TC Validation: set
         index = bisect.bisect_left(self.subtitle_paired, row_position)
-        if False not in map(lambda x: bool(x.text()) if x else False, (self.table_work.item(row_position, i) for i in (0, 1))):
+        if False not in map(lambda x: bool(x.text()) if x else False,
+                            (self.table_work.item(row_position, i) for i in (0, 1))):
             if index == len(self.subtitle_paired) or self.subtitle_paired[index] != row_position:
                 self.subtitle_paired.insert(index, row_position)
                 if index < self.subtitle_index:
@@ -423,29 +449,16 @@ class AdvancedSetup(Ui_MainWindow):
         for index in self.subtitle_paired:
             item = self.table_work.item(index, 0), self.table_work.item(index, 1), self.table_work.item(index, 2)
             if item[2]:
-                item = pysrt.SubRipItem(index + 1, item[0].text().replace('.', ','), item[1].text().replace('.', ','),
+                item = pysrt.SubRipItem(index + 1, item[0].text().replace('.', ','),
+                                        item[1].text().replace('.', ','),
                                         item[2].text().replace('|', '\n'))
                 sub.append(item)
             else:
                 empty_text.append(index)
         if empty_text:
             err = QMessageBox()
-            err.information(self.main, 'error', 'no text in {}'.format(empty_text))
+            err.information(self, 'error', 'no text in {}'.format(empty_text))
         sub.save(os.path.join(FOLDER, '{}.srt'.format(self.work_video['video'])))
-
-    def event_work_delete_language(self):
-        select_language = QMessageBox()
-        select_language.setWindowTitle('언어선택')
-        select_language.setStandardButtons(select_language.Yes | select_language.No)
-        select_language.setGeometry(self.main.x() + self.main.width()/2, self.main.y() + self.main.height()/2,
-                                    select_language.width(), select_language.height())
-        combobox = QComboBox(select_language)
-        combobox.setGeometry(45, combobox.y(), combobox.width(), combobox.height())
-        for lang in self.work_header[3:]:
-            combobox.addItem(lang)
-        if select_language.exec_() == select_language.Yes:
-            if combobox.currentText():
-                self.client['POST'][4] = [combobox.currentText()]
 
     def event_work_tc_set(self):
         tc = self.video_player.position()
@@ -472,15 +485,12 @@ class AdvancedSetup(Ui_MainWindow):
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
-# ******************************************** 쓰레드 작업 ******************************************** #
-class DownLoadThread(QThread):
-    def __init__(self, main, download_link, video_path):
-        super(DownLoadThread, self).__init__()
-        self.main = main
-        self.download_link = download_link
-        self.video_path = video_path
-
-    def run(self):
-        gdown.download(self.download_link, self.video_path, self.main.video_progressbar)
-        self.main.event_video_set()
-# ******************************************** 쓰레드 작업 ******************************************** #
+class CustomQMessageBox(QMessageBox):
+    def __init__(self, parent):
+        super(CustomQMessageBox, self).__init__()
+        self.setWindowTitle('언어선택')
+        self.setStandardButtons(self.Yes | self.No)
+        self.setGeometry(int(parent.x() + parent.width() / 2), int(parent.y() + parent.height() / 2),
+                         self.width(), self.height())
+        self.combobox = QComboBox(self)
+        self.combobox.setGeometry(45, self.combobox.y(), self.combobox.width(), self.combobox.height())
