@@ -324,8 +324,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.subtitle.setText('')
         time_codes = [self.table_work.item(i, 0).text() for i in self.subtitle_paired]
         try:
-            self.table_work.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor(
-                "white")
+            self.table_work.verticalHeaderItem(self.subtitle_paired[self.subtitle_index]).setBackgroundColor("white")
         except (IndexError, AttributeError):
             pass
         self.subtitle_index = bisect.bisect_left(time_codes, self.milli_to_time(self.videoSlider.value()))
@@ -410,10 +409,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if cell_data[1] in (0, 1):
                 try:
                     assert cell_data[2] == '' or bool(re.match(r"\d{2}:\d{2}:\d{2}.\d{3}$", cell_data[2]))
-                    self.client['POST'][5] = [cell_data]
+                    if 5 in self.client['POST']:
+                        self.client['POST'][5].append(cell_data)
+                    else:
+                        self.client['POST'][5] = [cell_data]
                     row_position = cell.row()
                 except AssertionError:
-                    self.table_work.setItem(cell_data[0], cell_data[1], QTableWidgetItem(0))
+                    self.table_work.setItem(cell_data[0], cell_data[1], QTableWidgetItem(''))
                     row_position = 0
             else:
                 self.client['POST'][5] = [cell_data]
@@ -449,13 +451,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def event_work_export(self):
         sub = pysrt.SubRipFile()
         empty_text = list()
+        num = 1
         for index in self.subtitle_paired:
             item = self.table_work.item(index, 0), self.table_work.item(index, 1), self.table_work.item(index, 2)
             if item[2]:
-                item = pysrt.SubRipItem(index + 1, item[0].text().replace('.', ','),
+                item = pysrt.SubRipItem(num, item[0].text().replace('.', ','),
                                         item[1].text().replace('.', ','),
                                         item[2].text().replace('|', '\n'))
                 sub.append(item)
+                num += 1
             else:
                 empty_text.append(index)
         if empty_text:
