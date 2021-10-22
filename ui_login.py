@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_logindTfBbq.ui'
+## Form generated from reading UI file 'ui_loginApghyV.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -28,11 +28,31 @@ class Ui_Dialog(object):
         self.frame.setFrameShadow(QFrame.Raised)
         self.gridLayout_2 = QGridLayout(self.frame)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.label = QLabel(self.frame)
-        self.label.setObjectName(u"label")
-        self.label.setAlignment(Qt.AlignCenter)
+        self.pushButton = QPushButton(self.frame)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setStyleSheet(u"background-color: rgb(85, 255, 255);")
 
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.pushButton, 1, 0, 1, 1)
+
+        self.widget = QWidget(self.frame)
+        self.widget.setObjectName(u"widget")
+        self.widget.setStyleSheet(u"background-color: rgb(85, 255, 255);")
+        self.gridLayout_3 = QGridLayout(self.widget)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.user_id = QLineEdit(self.widget)
+        self.user_id.setObjectName(u"user_id")
+        self.user_id.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.user_id, 0, 0, 1, 1)
+
+        self.user_password = QLineEdit(self.widget)
+        self.user_password.setObjectName(u"user_password")
+        self.user_password.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.user_password, 1, 0, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.widget, 0, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -45,6 +65,10 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.label.setText(QCoreApplication.translate("Dialog", u"login", None))
+        self.pushButton.setText(QCoreApplication.translate("Dialog", u"\n"
+"\ub85c\uadf8\uc778\n"
+"", None))
+        self.user_id.setText(QCoreApplication.translate("Dialog", u"id", None))
+        self.user_password.setText(QCoreApplication.translate("Dialog", u"password", None))
     # retranslateUi
 

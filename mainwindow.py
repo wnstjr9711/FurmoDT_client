@@ -18,7 +18,7 @@ FOLDER = 'video_download'
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, client):
+    def __init__(self, client, authority_level):
         super(MainWindow, self).__init__()
 
         # ui 설정
@@ -28,7 +28,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 클라이언트 초기화
         self.client = {
             "id": client,
-            "qualified": "",
+            "authority_level": authority_level,
             "GET": None,     # None: project,  project id: work
             "POST": dict(),
         }

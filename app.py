@@ -14,7 +14,7 @@ app.setWindowIcon(QIcon(os.path.join('files', 'furmodt-favicon.ico')))
 client = LoginWindow()
 
 if client.authorized:
-    window = MainWindow('wnstjr')
+    window = MainWindow(*client.authorized)
     window.show()
 
     loop = qasync.QEventLoop(app)
