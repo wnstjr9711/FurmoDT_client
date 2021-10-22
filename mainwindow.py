@@ -107,6 +107,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.button_tc_in.clicked.connect(self.event_work_tc_in)
         self.button_tc_out.clicked.connect(self.event_work_tc_out)
         self.table_work.itemChanged.connect(self.event_work_update)
+        self.table_work.currentCellChanged.connect(self.event_work_video_move)
         # ******************************************** 작업 조작 이벤트 ******************************************** #
 
     # ******************************************** 이벤트 오버라이딩 ******************************************** #
@@ -160,8 +161,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.video_stop()
         if self.subtitle_index < len(self.subtitle_paired):
             in_out = list(map(lambda x: self.time_to_milli(x),
-                              (self.table_work.item(self.subtitle_paired[self.subtitle_index], i).text() for i in
-                               (0, 1))))
+                              (self.table_work.item(self.subtitle_paired[self.subtitle_index], i).text()
+                               for i in (0, 1))))
             if self.subtitle_tc != in_out:
                 self.subtitle_tc = in_out
             index = self.subtitle_paired[self.subtitle_index]
@@ -176,6 +177,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.subtitle.setText(text.replace('|', '\n'))
                     self.table_work.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
                     self.table_work.verticalHeaderItem(index).setBackgroundColor("yellow")
+            elif self.video_player.position() < self.subtitle_tc[0]:
+                self.subtitle_index -= 1
     # ******************************************** 타이머 ******************************************** #
 
     # ******************************************** 화면 상태 함수 ******************************************** #
@@ -490,6 +493,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.table_work.setCurrentCell(row, column)
         item = QTableWidgetItem(self.milli_to_time(tc))
         self.table_work.setItem(row, column, item)
+
+    def event_work_video_move(self):
+        moveto = self.table_work.item(self.table_work.currentRow(), 0)
+        if moveto:
+            self.video_pause()
+            self.videoSlider.setValue(self.time_to_milli(moveto.text()))
+            self.event_video_position()
+            self.video_play()
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
