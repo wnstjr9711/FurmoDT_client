@@ -7,6 +7,7 @@ from PySide2extn.RoundProgressBar import roundProgressBar
 from ui_main import Ui_MainWindow
 from pandas import read_json
 import datetime
+import config
 import bisect
 import pysrt
 import gdown
@@ -14,16 +15,14 @@ import re
 import sys
 import os
 
-FOLDER = 'video_download'
-
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, client, authority_level):
         super(MainWindow, self).__init__()
 
+
         # ui 설정
         self.setupUi(self)
-        self.table_project.setFont(QFont("Nanum Myeongjo", 25))
 
         # 클라이언트 초기화
         self.client = {
@@ -48,22 +47,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.video_duration = 0
         self.video_player = QMediaPlayer()
         self.video_widget = QVideoWidget(self.videowidget)
-        self.video_widget.resize(QSize(480, 360))
         self.video_player.setVideoOutput(self.video_widget)
 
         self.video_progressbar = roundProgressBar(self.videowidget)
-        self.video_progressbar.setGeometry((self.videowidget.width() / 2) - 50,
-                                           (self.videowidget.height() / 2) - 50,
-                                           100, 100)
         self.video_progressbar.rpb_setBarStyle('Line')
         self.video_progressbar.rpb_setValue(0)
         self.video_progressbar.setVisible(False)
 
         # 자막
         self.subtitle = QLabel(self.videowidget)
-        self.subtitle.setFont(QFont('Nanum Myeongjo', 8))
-        x, y = self.video_widget.width(), int(self.video_widget.height() / 8)
-        self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
         self.subtitle.setStyleSheet("background-color: black;"
                                     "color: white;")
         self.subtitle.setAlignment(Qt.AlignCenter)
@@ -133,6 +125,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def dropEvent(self, e):
         self.event_work_add_subtitle(e.mimeData().urls()[0].toLocalFile())
+
+    def resizeEvent(self, e):
+        self.table_project.setFont(QFont('Nanum Myeongjo', int(self.project_widget.height()/20*0.8)))
+        self.video_widget.resize(self.videowidget.size())
+        self.video_progressbar.setGeometry((self.videowidget.width() / 2) - 50,
+                                           (self.videowidget.height() / 2) - 50,
+                                           100, 100)
+        x, y = self.video_widget.width(), int(self.video_widget.height() / 8)
+        self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
+        self.subtitle.setFont(QFont('Nanum Myeongjo', int(self.subtitle.height() * 0.7 / 3)))
     # ******************************************** 이벤트 오버라이딩 ******************************************** #
 
     # ******************************************** 타이머 ******************************************** #
@@ -169,9 +171,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.table_work.verticalHeaderItem(index).setBackgroundColor("white")
                 self.subtitle_index += 1
             elif self.video_player.position() >= self.subtitle_tc[0]:
-                text = self.table_work.item(self.subtitle_paired[self.subtitle_index], 2).text()
+                text = self.table_work.item(self.subtitle_paired[self.subtitle_index], 2).text()  # 2 = 테스트용 첫번째 언어
                 if self.subtitle.text() != text:
-                    self.subtitle.setText(text.replace('|', '\n'))  # 2 = 테스트용 첫번째 언어
+                    self.subtitle.setText(text.replace('|', '\n'))
                     self.table_work.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
                     self.table_work.verticalHeaderItem(index).setBackgroundColor("yellow")
     # ******************************************** 타이머 ******************************************** #
@@ -337,7 +339,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def event_video_set(self):
         filename = self.work_video['video']
-        location = os.path.join(os.getcwd(), FOLDER)
+        location = os.path.join(os.getcwd(), config.FOLDER)
         video_path = os.path.join(location, filename)
         self.video_progressbar.setVisible(True)
         if not os.path.exists(video_path):
@@ -345,7 +347,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             if self.video_progressbar.rpb_textValue != '100%':
                 self.video_progressbar.rpb_setValue(100)
-            media = QMediaContent(QUrl.fromLocalFile(os.path.join(os.getcwd(), FOLDER, filename)))
+            media = QMediaContent(QUrl.fromLocalFile(os.path.join(os.getcwd(), config.FOLDER, filename)))
             self.video_player.setMedia(media)
 
     def video_load(self, location, video_path, fileid):
@@ -374,7 +376,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def event_project_join(self):
         self.client['GET'] = self.table_project.currentItem().text()
         self.view_work()
-
     # ******************************************** 프로젝트 이벤트 함수 ******************************************** #
 
     # ******************************************** 작업 이벤트 함수 ******************************************** #
@@ -465,7 +466,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if empty_text:
             err = QMessageBox()
             err.information(self, 'error', 'no text in {}'.format(empty_text))
-        sub.save(os.path.join(FOLDER, '{}.srt'.format(self.work_video['video'])))
+        sub.save(os.path.join(config.FOLDER, '{}.srt'.format(self.work_video['video'])))
 
     def event_work_tc_set(self):
         tc = self.video_player.position()

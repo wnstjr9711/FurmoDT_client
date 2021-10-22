@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'applicationCAebdQ.ui'
+## Form generated from reading UI file 'ui_mainccHsCo.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -25,28 +25,33 @@ class Ui_MainWindow(object):
         self.playerwidget = QWidget(self.centralwidget)
         self.playerwidget.setObjectName(u"playerwidget")
         self.playerwidget.setMinimumSize(QSize(528, 500))
-        self.playerwidget.setMaximumSize(QSize(528, 16777215))
+        self.playerwidget.setMaximumSize(QSize(16777215, 16777215))
         self.verticalLayout = QVBoxLayout(self.playerwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.videowidget = QWidget(self.playerwidget)
         self.videowidget.setObjectName(u"videowidget")
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.videowidget.sizePolicy().hasHeightForWidth())
+        self.videowidget.setSizePolicy(sizePolicy)
         self.videowidget.setMinimumSize(QSize(480, 360))
-        self.videowidget.setMaximumSize(QSize(480, 360))
+        self.videowidget.setMaximumSize(QSize(16777215, 16777215))
         self.videowidget.setStyleSheet(u"background-color: rgb(0, 0, 0);")
         self.gridLayout = QGridLayout(self.videowidget)
         self.gridLayout.setObjectName(u"gridLayout")
 
-        self.verticalLayout.addWidget(self.videowidget, 0, Qt.AlignHCenter)
+        self.verticalLayout.addWidget(self.videowidget)
 
         self.widget_5 = QWidget(self.playerwidget)
         self.widget_5.setObjectName(u"widget_5")
         self.widget_5.setMinimumSize(QSize(510, 0))
-        self.widget_5.setMaximumSize(QSize(510, 76))
+        self.widget_5.setMaximumSize(QSize(16777215, 16777215))
         self.verticalLayout_2 = QVBoxLayout(self.widget_5)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.videoSlider = QSlider(self.widget_5)
         self.videoSlider.setObjectName(u"videoSlider")
-        self.videoSlider.setMaximumSize(QSize(492, 16777215))
+        self.videoSlider.setMaximumSize(QSize(16777215, 16777215))
         self.videoSlider.setMaximum(0)
         self.videoSlider.setOrientation(Qt.Horizontal)
 
@@ -105,11 +110,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.widget_3)
 
-        self.widget_4 = QWidget(self.playerwidget)
-        self.widget_4.setObjectName(u"widget_4")
-
-        self.verticalLayout.addWidget(self.widget_4)
-
 
         self.gridLayout_2.addWidget(self.playerwidget, 0, 0, 1, 1)
 
@@ -127,7 +127,7 @@ class Ui_MainWindow(object):
 
         self.project_input = QWidget(self.project_widget)
         self.project_input.setObjectName(u"project_input")
-        self.project_input.setMaximumSize(QSize(256, 16777215))
+        self.project_input.setMaximumSize(QSize(16777215, 16777215))
         self.formLayout = QFormLayout(self.project_input)
         self.formLayout.setObjectName(u"formLayout")
         self.label = QLabel(self.project_input)
