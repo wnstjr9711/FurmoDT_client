@@ -20,7 +20,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, client, authority_level):
         super(MainWindow, self).__init__()
 
-
         # ui 설정
         self.setupUi(self)
 
@@ -172,13 +171,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.table_work.verticalHeaderItem(index).setBackgroundColor("white")
                 self.subtitle_index += 1
             elif self.video_player.position() >= self.subtitle_tc[0]:
-                text = self.table_work.item(self.subtitle_paired[self.subtitle_index], 2).text()  # 2 = 테스트용 첫번째 언어
-                if self.subtitle.text() != text:
-                    self.subtitle.setText(text.replace('|', '\n'))
+                subtitle = self.table_work.item(self.subtitle_paired[self.subtitle_index], 2)  # 2 = 테스트용 첫번째 언어
+                if subtitle and self.subtitle.text() != subtitle.text():
+                    self.subtitle.setText(subtitle.text().replace('|', '\n'))
                     self.table_work.setVerticalHeaderItem(index, QTableWidgetItem(str(index + 1)))
                     self.table_work.verticalHeaderItem(index).setBackgroundColor("yellow")
             elif self.video_player.position() < self.subtitle_tc[0]:
-                self.subtitle_index -= 1
+                if self.subtitle_index > 0:
+                    self.subtitle_index -= 1
     # ******************************************** 타이머 ******************************************** #
 
     # ******************************************** 화면 상태 함수 ******************************************** #
@@ -214,6 +214,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def view_work(self):
         self.project_widget.setVisible(False)
         self.work_widget.setVisible(True)
+        self.table_work.setCurrentCell(0, 1)
 
     def refresh(self, ret):
         # 프로젝트 목록 갱신
@@ -474,14 +475,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def event_work_tc_set(self):
         tc = self.video_player.position()
         row = self.table_work.currentIndex().row()
-        self.tc_put(0, tc, row)
-        if row > 0 and (self.table_work.item(row - 1, 1) is None or not self.table_work.item(row - 1, 1).text()):
-            self.tc_put(1, tc, row - 1)
-        self.table_work.setCurrentCell(row + 1, 0)
+        self.tc_put(1, tc, row)
+        self.tc_put(0, tc, row + 1)
+        self.table_work.setCurrentCell(row + 1, 1)
 
     def event_work_tc_in(self):
         row = self.table_work.currentIndex().row()
+        if self.table_work.item(row, 0):
+            self.table_work.setItem(row, 0, None)
         self.tc_put(0, self.video_player.position(), row)
+        self.table_work.setCurrentCell(row, 1)
 
     def event_work_tc_out(self):
         row = self.table_work.currentIndex().row()
@@ -489,18 +492,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.table_work.setCurrentCell(row + 1, 0)
 
     def tc_put(self, column, tc, row):
-        row = row if row >= 0 else 0
         self.table_work.setCurrentCell(row, column)
         item = QTableWidgetItem(self.milli_to_time(tc))
         self.table_work.setItem(row, column, item)
 
     def event_work_video_move(self):
         moveto = self.table_work.item(self.table_work.currentRow(), 0)
-        if moveto:
-            self.video_pause()
+        if moveto and moveto.text():
             self.videoSlider.setValue(self.time_to_milli(moveto.text()))
             self.event_video_position()
-            self.video_play()
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
