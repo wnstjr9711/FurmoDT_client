@@ -11,8 +11,8 @@ import config
 import bisect
 import pysrt
 import gdown
-import re
 import sys
+import re
 import os
 
 
@@ -246,6 +246,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.work_who = (row, column, item.text())
                             self.table_work.setItem(row, column, item)
             else:  # 부분 갱신
+                # worker status update
+                workers = list(map(lambda x: list(x).pop(), ret['worker']))
+                self.workers.setText('참여자: ' + ', '.join(workers))
+                # worker status update
                 if self.work_header != ret['header']:
                     delete_language = set(self.work_header).difference(set(ret['header']))
                     if delete_language:
