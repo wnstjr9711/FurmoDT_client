@@ -15,6 +15,8 @@ import sys
 import re
 import os
 
+COLOR = ['red', 'cyan', 'magenta', 'gray', 'blue']
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, client, authority_level):
@@ -71,6 +73,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.work_header = list()
         self.thread_video_download = None
         self.work_who = None  # update 주체가 다를 때 변동사항 재전송 방지
+        self.worker = dict()
 
         # 초기화면 설정
         self.view_default()
@@ -197,6 +200,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def view_project(self):
         self.client['GET'] = None
+        del self.worker
         self.table_work.clear()
         self.table_work.setRowCount(200)
         self.subtitle.clear()
@@ -247,10 +251,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.work_who = (row, column, item.text())
                             self.table_work.setItem(row, column, item)
             else:  # 부분 갱신
-                # worker status update
-                workers = list(map(lambda x: list(x).pop(), ret['worker']))
-                self.workers.setText('참여자: ' + ', '.join(workers))
-                # worker status update
                 if self.work_header != ret['header']:
                     delete_language = set(self.work_header).difference(set(ret['header']))
                     if delete_language:
@@ -263,6 +263,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if not self.table_work.item(row, column) or self.table_work.item(row, column).text() != text:
                         self.work_who = update
                         self.table_work.setItem(row, column, QTableWidgetItem(text))
+
+                try:
+                    change = list()
+                    for worker in list(self.worker.keys()):
+                        value = ret['worker'].get(worker)
+                        if value:
+                            ret['worker'].pop(worker)
+                            if value != self.worker[worker]:
+                                self.table_work.item(*self.worker[worker]).setBackgroundColor('white')
+                                self.worker[worker] = value
+                                change.append(worker)
+                        else:
+                            self.table_work.item(*self.worker[worker]).setBackgroundColor('white')
+                            self.worker.pop(worker)
+                    for worker in ret['worker']:
+                        self.worker[worker] = ret['worker'][worker]
+                        change.append(worker)
+                    if change:
+                        for key in change:
+                            if key == self.client['id']:
+                                continue
+                            idx = list(self.worker).index(key)
+                            color = COLOR[idx]
+                            r, c = self.worker[key]
+                            if not self.table_work.item(r, c):
+                                self.table_work.setItem(r, c, QTableWidgetItem(''))
+                            self.table_work.item(r, c).setBackgroundColor(color)
+
+                except AttributeError:
+                    self.worker = dict()
+                self.workers.setText('참여자: ' + ', '.join(list(self.worker)))
+
             if self.video_progressbar.isVisible():
                 if self.video_player.isVideoAvailable():
                     self.video_progressbar.setVisible(False)
@@ -413,8 +445,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             row_position = self.work_who[0]
             self.work_who = None
         else:
-            cell = self.table_work.currentItem()
-            cell_data = (cell.row(), cell.column(), cell.text())
+            try:
+                cell = self.table_work.currentItem()
+                cell_data = (cell.row(), cell.column(), cell.text())
+            except AttributeError:
+                return
             # TC Validation: format
             if cell_data[1] in (0, 1):
                 try:
