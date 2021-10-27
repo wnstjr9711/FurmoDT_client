@@ -184,7 +184,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # ******************************************** 화면 상태 함수 ******************************************** #
     # post 메시지 초기화
     def setdefault_client(self):
-        self.client['POST'].clear()
+        for key in tuple(i for i in self.client['POST'].keys()):
+            self.client['POST'].pop(key)
 
     def view_default(self):
         for i in range(2):
@@ -501,6 +502,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.table_work.setItem(row, column, item)
 
     def event_work_video_move(self):
+        self.client['POST'][6] = (self.table_work.currentRow(), self.table_work.currentColumn())
         moveto = self.table_work.item(self.table_work.currentRow(), 0)
         if moveto and moveto.text():
             self.videoSlider.setValue(self.time_to_milli(moveto.text()))
