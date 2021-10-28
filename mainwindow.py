@@ -271,7 +271,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         if value:
                             ret['worker'].pop(worker)
                             if value != self.worker[worker]:
-                                self.table_work.item(*self.worker[worker]).setBackgroundColor('white')
+                                if self.table_work.item(*self.worker[worker]):
+                                    self.table_work.item(*self.worker[worker]).setBackgroundColor('white')
                                 self.worker[worker] = value
                                 change.append(worker)
                         else:
@@ -290,10 +291,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             if not self.table_work.item(r, c):
                                 self.table_work.setItem(r, c, QTableWidgetItem(''))
                             self.table_work.item(r, c).setBackgroundColor(color)
-
                 except AttributeError:
                     self.worker = dict()
-                self.workers.setText('참여자: ' + ', '.join(list(self.worker)))
+                text_workers = '참여자: ' + ', '.join(list(self.worker))
+                if self.workers.text() != text_workers:
+                    self.workers.setText(text_workers)
 
             if self.video_progressbar.isVisible():
                 if self.video_player.isVideoAvailable():
@@ -537,8 +539,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.table_work.setItem(row, column, item)
 
     def event_work_video_move(self):
-        self.client['POST'][6] = (self.table_work.currentRow(), self.table_work.currentColumn())
-        moveto = self.table_work.item(self.table_work.currentRow(), 0)
+        row, column = self.table_work.currentRow(), self.table_work.currentColumn()
+        self.client['POST'][6] = (row, column)
+        moveto = self.table_work.item(row, 0)
         if moveto and moveto.text():
             self.videoSlider.setValue(self.time_to_milli(moveto.text()))
             self.event_video_position()
