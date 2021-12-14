@@ -140,6 +140,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x, y = self.video_widget.width(), int(self.video_widget.height() / 8)
         self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
         self.subtitle.setFont(QFont('Nanum Myeongjo', int(self.subtitle.height() * 0.5 / 3)))
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_F6 and self.table_work.currentItem():
+            row, column = self.table_work.currentRow(), self.table_work.currentColumn()
+            moveto = self.table_work.item(row, 0)
+            if moveto and moveto.text():
+                self.videoSlider.setValue(self.time_to_milli(moveto.text()))
+            self.event_video_position()
+
+
     # ******************************************** 이벤트 오버라이딩 ******************************************** #
 
     # ******************************************** 타이머 ******************************************** #
@@ -560,10 +570,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def event_work_video_move(self):
         row, column = self.table_work.currentRow(), self.table_work.currentColumn()
         self.client['POST'][6] = (row, column)
-        moveto = self.table_work.item(row, 0)
-        if moveto and moveto.text():
-            self.videoSlider.setValue(self.time_to_milli(moveto.text()))
-            self.event_video_position()
     # ******************************************** 작업 이벤트 함수 ******************************************** #
 
 
