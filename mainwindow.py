@@ -299,9 +299,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.table_work.item(r, c).setBackgroundColor(color)
                 except AttributeError:
                     self.worker = dict()
-                text_workers = '참여자: ' + ', '.join(list(self.worker))
-                if self.workers.text() != text_workers:
-                    self.workers.setText(text_workers)
+                
+                # 참여자 리스트
+                if list(map(lambda x: x.text(), self.widget_participant.children()[2:])) != list(self.worker):
+                    for i in self.widget_participant.children()[2:]:
+                        i.deleteLater()
+                    for idx, text in enumerate(self.worker):
+                        label = QLabel(self.widget_participant)
+                        self.horizontalLayout_5.addWidget(label)
+                        label.setAlignment(Qt.AlignCenter)
+                        label.setText(text)
+                        label.adjustSize()
+                        label.setStyleSheet("background-color: {};".format(COLOR[idx]))
 
             if self.video_progressbar.isVisible():
                 if self.video_player.isVideoAvailable():
