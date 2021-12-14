@@ -96,6 +96,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.button_create_project.clicked.connect(self.event_project_input_visible)
         self.buttonbox_create.accepted.connect(self.event_project_create_accept)
         self.buttonbox_create.rejected.connect(self.event_project_input_visible)
+        # 삭제
+        self.button_remove_project.clicked.connect(self.event_project_remove)
         # 입장
         self.table_project.itemDoubleClicked.connect(self.event_project_join)
         # ******************************************** 프로젝트 조작 이벤트 ******************************************** #
@@ -137,7 +139,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                            100, 100)
         x, y = self.video_widget.width(), int(self.video_widget.height() / 8)
         self.subtitle.setGeometry(0, self.videowidget.height() - y, x, y)
-        self.subtitle.setFont(QFont('Nanum Myeongjo', int(self.subtitle.height() * 0.7 / 3)))
+        self.subtitle.setFont(QFont('Nanum Myeongjo', int(self.subtitle.height() * 0.5 / 3)))
     # ******************************************** 이벤트 오버라이딩 ******************************************** #
 
     # ******************************************** 타이머 ******************************************** #
@@ -225,6 +227,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 프로젝트 목록 갱신
         if type(ret) == list:
             self.work_video = None
+            remove = set(self.project_list).difference(ret)
+            if remove:
+                self.project_list.clear()
+                self.table_project.clear()
             add = set(ret).difference(self.project_list)
             for row in sorted(add):
                 self.project_list.append(row)
@@ -415,6 +421,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             err = QMessageBox()
             err.information(self, 'error', 'invalid url!')
+
+    def event_project_remove(self):
+        if self.table_project.currentItem():
+            self.client['POST'][2] = self.table_project.currentItem().text()
 
     def event_project_join(self):
         self.client['GET'] = self.table_project.currentItem().text()

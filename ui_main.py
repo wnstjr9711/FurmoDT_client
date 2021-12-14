@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_mainawstWs.ui'
+## Form generated from reading UI file 'ui_mainJWVlWs.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -22,6 +22,94 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout_2 = QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.work_widget = QWidget(self.centralwidget)
+        self.work_widget.setObjectName(u"work_widget")
+        self.gridLayout_3 = QGridLayout(self.work_widget)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.table_work = QTableWidget(self.work_widget)
+        if (self.table_work.columnCount() < 3):
+            self.table_work.setColumnCount(3)
+        if (self.table_work.rowCount() < 200):
+            self.table_work.setRowCount(200)
+        self.table_work.setObjectName(u"table_work")
+        self.table_work.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.table_work.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.table_work.setAutoScroll(True)
+        self.table_work.setRowCount(200)
+        self.table_work.setColumnCount(3)
+        self.table_work.horizontalHeader().setVisible(True)
+        self.table_work.horizontalHeader().setCascadingSectionResizes(False)
+        self.table_work.horizontalHeader().setProperty("showSortIndicator", False)
+        self.table_work.horizontalHeader().setStretchLastSection(False)
+        self.table_work.verticalHeader().setVisible(True)
+        self.table_work.verticalHeader().setCascadingSectionResizes(False)
+        self.table_work.verticalHeader().setProperty("showSortIndicator", False)
+
+        self.gridLayout_3.addWidget(self.table_work, 3, 0, 1, 1)
+
+        self.widget = QWidget(self.work_widget)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout = QHBoxLayout(self.widget)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.button_work_quit = QPushButton(self.widget)
+        self.button_work_quit.setObjectName(u"button_work_quit")
+
+        self.horizontalLayout.addWidget(self.button_work_quit)
+
+        self.button_add_language = QPushButton(self.widget)
+        self.button_add_language.setObjectName(u"button_add_language")
+        self.button_add_language.setEnabled(True)
+
+        self.horizontalLayout.addWidget(self.button_add_language)
+
+        self.button_delete_language = QPushButton(self.widget)
+        self.button_delete_language.setObjectName(u"button_delete_language")
+
+        self.horizontalLayout.addWidget(self.button_delete_language)
+
+        self.button_work_save = QPushButton(self.widget)
+        self.button_work_save.setObjectName(u"button_work_save")
+
+        self.horizontalLayout.addWidget(self.button_work_save)
+
+        self.pushButton_2 = QPushButton(self.widget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+        self.pushButton_2.setEnabled(False)
+
+        self.horizontalLayout.addWidget(self.pushButton_2)
+
+
+        self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.button_tc_set = QPushButton(self.work_widget)
+        self.button_tc_set.setObjectName(u"button_tc_set")
+
+        self.horizontalLayout_4.addWidget(self.button_tc_set)
+
+        self.button_tc_in = QPushButton(self.work_widget)
+        self.button_tc_in.setObjectName(u"button_tc_in")
+
+        self.horizontalLayout_4.addWidget(self.button_tc_in)
+
+        self.button_tc_out = QPushButton(self.work_widget)
+        self.button_tc_out.setObjectName(u"button_tc_out")
+
+        self.horizontalLayout_4.addWidget(self.button_tc_out)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
+
+        self.workers = QLabel(self.work_widget)
+        self.workers.setObjectName(u"workers")
+        self.workers.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.workers, 1, 0, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.work_widget, 0, 2, 1, 1)
+
         self.playerwidget = QWidget(self.centralwidget)
         self.playerwidget.setObjectName(u"playerwidget")
         self.playerwidget.setMinimumSize(QSize(528, 500))
@@ -118,12 +206,22 @@ class Ui_MainWindow(object):
         self.project_widget.setMinimumSize(QSize(274, 0))
         self.verticalLayout_5 = QVBoxLayout(self.project_widget)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.button_create_project = QPushButton(self.project_widget)
+        self.widget_2 = QWidget(self.project_widget)
+        self.widget_2.setObjectName(u"widget_2")
+        self.horizontalLayout_3 = QHBoxLayout(self.widget_2)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.button_create_project = QPushButton(self.widget_2)
         self.button_create_project.setObjectName(u"button_create_project")
-        self.button_create_project.setMinimumSize(QSize(256, 0))
-        self.button_create_project.setMaximumSize(QSize(256, 16777215))
 
-        self.verticalLayout_5.addWidget(self.button_create_project, 0, Qt.AlignHCenter)
+        self.horizontalLayout_3.addWidget(self.button_create_project)
+
+        self.button_remove_project = QPushButton(self.widget_2)
+        self.button_remove_project.setObjectName(u"button_remove_project")
+
+        self.horizontalLayout_3.addWidget(self.button_remove_project)
+
+
+        self.verticalLayout_5.addWidget(self.widget_2)
 
         self.project_input = QWidget(self.project_widget)
         self.project_input.setObjectName(u"project_input")
@@ -159,7 +257,7 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(2, QFormLayout.FieldRole, self.buttonbox_create)
 
 
-        self.verticalLayout_5.addWidget(self.project_input, 0, Qt.AlignHCenter)
+        self.verticalLayout_5.addWidget(self.project_input)
 
         self.table_project = QListWidget(self.project_widget)
         self.table_project.setObjectName(u"table_project")
@@ -168,94 +266,6 @@ class Ui_MainWindow(object):
 
 
         self.gridLayout_2.addWidget(self.project_widget, 0, 1, 1, 1)
-
-        self.work_widget = QWidget(self.centralwidget)
-        self.work_widget.setObjectName(u"work_widget")
-        self.gridLayout_3 = QGridLayout(self.work_widget)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.table_work = QTableWidget(self.work_widget)
-        if (self.table_work.columnCount() < 3):
-            self.table_work.setColumnCount(3)
-        if (self.table_work.rowCount() < 200):
-            self.table_work.setRowCount(200)
-        self.table_work.setObjectName(u"table_work")
-        self.table_work.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.table_work.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.table_work.setAutoScroll(True)
-        self.table_work.setRowCount(200)
-        self.table_work.setColumnCount(3)
-        self.table_work.horizontalHeader().setVisible(True)
-        self.table_work.horizontalHeader().setCascadingSectionResizes(False)
-        self.table_work.horizontalHeader().setProperty("showSortIndicator", False)
-        self.table_work.horizontalHeader().setStretchLastSection(False)
-        self.table_work.verticalHeader().setVisible(True)
-        self.table_work.verticalHeader().setCascadingSectionResizes(False)
-        self.table_work.verticalHeader().setProperty("showSortIndicator", False)
-
-        self.gridLayout_3.addWidget(self.table_work, 3, 0, 1, 1)
-
-        self.widget = QWidget(self.work_widget)
-        self.widget.setObjectName(u"widget")
-        self.horizontalLayout = QHBoxLayout(self.widget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.button_work_quit = QPushButton(self.widget)
-        self.button_work_quit.setObjectName(u"button_work_quit")
-
-        self.horizontalLayout.addWidget(self.button_work_quit)
-
-        self.button_add_language = QPushButton(self.widget)
-        self.button_add_language.setObjectName(u"button_add_language")
-        self.button_add_language.setEnabled(True)
-
-        self.horizontalLayout.addWidget(self.button_add_language)
-
-        self.button_delete_language = QPushButton(self.widget)
-        self.button_delete_language.setObjectName(u"button_delete_language")
-
-        self.horizontalLayout.addWidget(self.button_delete_language)
-
-        self.button_work_save = QPushButton(self.widget)
-        self.button_work_save.setObjectName(u"button_work_save")
-
-        self.horizontalLayout.addWidget(self.button_work_save)
-
-        self.pushButton_2 = QPushButton(self.widget)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-        self.pushButton_2.setEnabled(False)
-
-        self.horizontalLayout.addWidget(self.pushButton_2)
-
-
-        self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
-
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.button_tc_set = QPushButton(self.work_widget)
-        self.button_tc_set.setObjectName(u"button_tc_set")
-
-        self.horizontalLayout_4.addWidget(self.button_tc_set)
-
-        self.button_tc_in = QPushButton(self.work_widget)
-        self.button_tc_in.setObjectName(u"button_tc_in")
-
-        self.horizontalLayout_4.addWidget(self.button_tc_in)
-
-        self.button_tc_out = QPushButton(self.work_widget)
-        self.button_tc_out.setObjectName(u"button_tc_out")
-
-        self.horizontalLayout_4.addWidget(self.button_tc_out)
-
-
-        self.gridLayout_3.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
-
-        self.workers = QLabel(self.work_widget)
-        self.workers.setObjectName(u"workers")
-        self.workers.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.workers, 1, 0, 1, 1)
-
-
-        self.gridLayout_2.addWidget(self.work_widget, 0, 2, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
@@ -269,24 +279,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"FurmoDT", None))
-        self.playtime.setText(QCoreApplication.translate("MainWindow", u"0:00:00 / 0:00:00", None))
-        self.button_play.setText(QCoreApplication.translate("MainWindow", u"\u25b6", None))
-#if QT_CONFIG(shortcut)
-        self.button_play.setShortcut(QCoreApplication.translate("MainWindow", u"Space", None))
-#endif // QT_CONFIG(shortcut)
-        self.button_prev.setText(QCoreApplication.translate("MainWindow", u" \u25c0\u25c0", None))
-#if QT_CONFIG(shortcut)
-        self.button_prev.setShortcut(QCoreApplication.translate("MainWindow", u"F4", None))
-#endif // QT_CONFIG(shortcut)
-        self.button_next.setText(QCoreApplication.translate("MainWindow", u"\u25b6\u25b6", None))
-#if QT_CONFIG(shortcut)
-        self.button_next.setShortcut(QCoreApplication.translate("MainWindow", u"F5", None))
-#endif // QT_CONFIG(shortcut)
-        self.button_stop.setText(QCoreApplication.translate("MainWindow", u"\u25a0", None))
-        self.sound.setText(QCoreApplication.translate("MainWindow", u"100", None))
-        self.button_create_project.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc0dd\uc131", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
         self.button_work_quit.setText(QCoreApplication.translate("MainWindow", u"\ub098\uac00\uae30", None))
         self.button_add_language.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \ucd94\uac00\ud558\uae30", None))
         self.button_delete_language.setText(QCoreApplication.translate("MainWindow", u"\uc5b8\uc5b4 \uc0ad\uc81c\ud558\uae30", None))
@@ -305,5 +297,24 @@ class Ui_MainWindow(object):
         self.button_tc_out.setShortcut(QCoreApplication.translate("MainWindow", u"F3", None))
 #endif // QT_CONFIG(shortcut)
         self.workers.setText(QCoreApplication.translate("MainWindow", u"\ucc38\uc5ec\uc790", None))
+        self.playtime.setText(QCoreApplication.translate("MainWindow", u"0:00:00 / 0:00:00", None))
+        self.button_play.setText(QCoreApplication.translate("MainWindow", u"\u25b6", None))
+#if QT_CONFIG(shortcut)
+        self.button_play.setShortcut(QCoreApplication.translate("MainWindow", u"Space", None))
+#endif // QT_CONFIG(shortcut)
+        self.button_prev.setText(QCoreApplication.translate("MainWindow", u" \u25c0\u25c0", None))
+#if QT_CONFIG(shortcut)
+        self.button_prev.setShortcut(QCoreApplication.translate("MainWindow", u"F4", None))
+#endif // QT_CONFIG(shortcut)
+        self.button_next.setText(QCoreApplication.translate("MainWindow", u"\u25b6\u25b6", None))
+#if QT_CONFIG(shortcut)
+        self.button_next.setShortcut(QCoreApplication.translate("MainWindow", u"F5", None))
+#endif // QT_CONFIG(shortcut)
+        self.button_stop.setText(QCoreApplication.translate("MainWindow", u"\u25a0", None))
+        self.sound.setText(QCoreApplication.translate("MainWindow", u"100", None))
+        self.button_create_project.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc0dd\uc131", None))
+        self.button_remove_project.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc0ad\uc81c", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"\ud504\ub85c\uc81d\ud2b8 \uc774\ub984", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"\ube44\ub514\uc624 \uc8fc\uc18c", None))
     # retranslateUi
 
