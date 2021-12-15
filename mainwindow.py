@@ -541,7 +541,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if empty_text:
             err = QMessageBox()
             err.information(self, 'error', 'no text in {}'.format(empty_text))
-        sub.save(os.path.join(config.FOLDER, '{}.srt'.format(self.work_video['video'])))
+        sub.save(os.path.join(config.FOLDER, '{}.srt'.format(self.client['GET'])))
 
     def event_work_tc_set(self):
         tc = self.video_player.position()
